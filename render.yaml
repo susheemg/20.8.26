@@ -1,0 +1,46 @@
+# Render Blueprint — BRO Risk Oracle demonstrator.
+# Uses Render's NATIVE PYTHON runtime (no Docker), which avoids the Docker
+# build-context pitfall entirely: Render clones the repo and runs the build and
+# start commands directly. You still must commit ALL project files to the repo
+# (see DEPLOY.md). If the project sits in a subfolder of the repo, set rootDir.
+services:
+  - type: web
+    name: bro-risk-oracle
+    runtime: python
+    plan: starter
+    # rootDir: tprm                      # uncomment if the app is in a subfolder
+    buildCommand: pip install -r requirements.txt
+    startCommand: uvicorn app.bro_app:app --host 0.0.0.0 --port $PORT
+    envVars:
+      - key: BRO_DB_URL
+        value: sqlite:///bro_demo.db     # seeded demonstrator; use a Postgres URL for prod
+      # - key: ANTHROPIC_API_KEY         # optional: set to enable the live model
+      #   sync: false                    # (or add it in the app's Settings screen)
+    healthCheckPath: /
+
+  # Scheduled monitoring sweep (sanctions re-screen, cert/evidence revalidation,
+  # reassessment-due). Runs daily at 02:00 UTC. NOTE: a cron service has its own
+  # filesystem, so this only shares data with the web service when BRO_DB_URL points
+  # at a managed Postgres (not the ephemeral SQLite demo). For the SQLite demo, use
+  # the in-process scheduler instead: set BRO_SCHEDULER_ENABLED=1 on the web service.
+  - type: cron
+    name: bro-monitoring
+    runtime: python
+    schedule: "0 2 * * *"
+    buildCommand: pip install -r requirements.txt
+    startCommand: python run_monitoring.py
+    envVars:
+      - key: BRO_DB_URL
+        value: sqlite:///bro_demo.db     # set to the SAME Postgres URL as the web service
+
+# --- Docker alternative -------------------------------------------------------
+# Prefer Docker? Delete the block above and use:
+#   - type: web
+#     name: bro-risk-oracle
+#     runtime: docker
+#     dockerfilePath: ./Dockerfile
+#     dockerContext: .
+#     envVars:
+#       - key: BRO_DB_URL
+#         value: sqlite:///bro_demo.db
+#     healthCheckPath: /

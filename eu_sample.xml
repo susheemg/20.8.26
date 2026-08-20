@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<export xmlns="http://eu.europa.ec/fpi/fsd/export">
+ <sanctionEntity logicalId="13" euReferenceNumber="EU.27.45" regulationProgramme="UKR">
+  <subjectType classificationCode="P"/>
+  <nameAlias wholeName="Sergei Ivanov" firstName="Sergei" lastName="Ivanov"/>
+  <nameAlias wholeName="Sergey Ivanoff"/>
+  <birthdate birthdate="1965-08-20"/>
+  <citizenship countryDescription="Russia"/>
+ </sanctionEntity>
+ <sanctionEntity logicalId="14" euReferenceNumber="EU.27.46" regulationProgramme="UKR">
+  <subjectType classificationCode="E"/>
+  <nameAlias wholeName="Tavrida Holding JSC"/>
+ </sanctionEntity>
+</export>

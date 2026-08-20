@@ -1,0 +1,853 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Brata TPRM — Technical Design & Architecture v4.9.0</title>
+<style>
+
+:root{
+  --forest:#14302A;--green:#1A4D3C;--teal:#2C6E5A;--gold:#B8862B;--gold-l:#E8C778;--gold-p:#FBF4E4;
+  --ink:#1a1a1a;--mute:#5a6472;--soft:#F7F5F0;--line:#E5DFD0;--white:#fff;
+  --s1:#2d4ab3;--s1bg:#EEF1FB;--s2:#0e5c40;--s2bg:#E8F5EE;--s3:#6b21a8;--s3bg:#F4ECF9;
+  --s4:#8A2E3B;--s4bg:#FDF0F1;--s5:#8a5a1a;--s5bg:#FDF6EC;--s6:#1F3A52;--s6bg:#EEF3FA;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{font-size:13.5px}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;color:var(--ink);background:var(--white);line-height:1.7}
+
+/* print / page setup */
+@page{size:A4;margin:14mm 0 16mm 0;}
+@media print{
+  .no-print{display:none!important}
+  .section{page-break-inside:auto}
+  .page-break{page-break-before:always}
+  .avoid-break,figure,table,.card,.diagram-wrap{page-break-inside:avoid}
+  h2,h3{page-break-after:avoid}
+  a{color:inherit;text-decoration:none}
+  body{font-size:10.5px}
+}
+
+.wrap{max-width:980px;margin:0 auto;padding:0 38px}
+
+/* cover */
+.cover{background:var(--forest);color:#fff;padding:80px 64px 64px;min-height:280mm;position:relative;overflow:hidden;page-break-after:always}
+.cover::before{content:'';position:absolute;top:-120px;right:-120px;width:520px;height:520px;border-radius:50%;background:radial-gradient(circle,rgba(184,134,43,.16) 0%,transparent 70%)}
+.cover::after{content:'';position:absolute;bottom:-160px;left:-120px;width:480px;height:480px;border-radius:50%;background:radial-gradient(circle,rgba(44,110,90,.18) 0%,transparent 70%)}
+.cover-inner{position:relative;z-index:2}
+.cover .doc-class{font-family:'SF Mono','Consolas','Liberation Mono',monospace;font-size:11px;letter-spacing:.22em;text-transform:uppercase;color:var(--gold-l);margin-bottom:34px}
+.cover .logo-mark{width:64px;height:64px;border-radius:16px;background:linear-gradient(135deg,var(--gold) 0%,var(--gold-l) 100%);display:flex;align-items:center;justify-content:center;font-family:Georgia,'Times New Roman',serif;font-size:34px;font-weight:700;color:var(--forest);margin-bottom:30px}
+.cover h1{font-family:Georgia,'Times New Roman',serif;font-size:60px;font-weight:700;line-height:1.04;margin-bottom:18px}
+.cover h1 span{color:var(--gold-l)}
+.cover .subtitle{font-size:18px;color:rgba(255,255,255,.72);max-width:600px;line-height:1.55;margin-bottom:60px}
+.cover-meta{display:grid;grid-template-columns:1fr 1fr;gap:22px 40px;max-width:640px;border-top:1px solid rgba(255,255,255,.16);padding-top:30px}
+.cover-meta .k{font-size:10.5px;letter-spacing:.08em;text-transform:uppercase;color:rgba(255,255,255,.42);margin-bottom:3px}
+.cover-meta .v{font-size:14px;color:rgba(255,255,255,.9);font-weight:500}
+.cover-foot{position:absolute;bottom:48px;left:64px;right:64px;display:flex;justify-content:space-between;font-size:11px;color:rgba(255,255,255,.4);z-index:2}
+
+/* TOC */
+.toc{padding:54px 0 20px;page-break-after:always}
+.toc h2{font-family:Georgia,'Times New Roman',serif;font-size:30px;color:var(--forest);margin-bottom:26px;padding-bottom:14px;border-bottom:2px solid var(--gold-p)}
+.toc ol{list-style:none;counter-reset:toc}
+.toc>ol>li{counter-increment:toc;padding:9px 0;border-bottom:1px solid var(--line);display:flex;align-items:baseline;gap:14px}
+.toc>ol>li::before{content:counter(toc,decimal-leading-zero);font-family:'SF Mono','Consolas','Liberation Mono',monospace;font-size:13px;color:var(--gold);font-weight:600;flex-shrink:0}
+.toc .toc-title{font-weight:600;font-size:15px;color:var(--forest)}
+.toc .toc-desc{font-size:12.5px;color:var(--mute);margin-left:auto;text-align:right;max-width:50%}
+
+/* sections */
+.section{padding:48px 0 8px}
+.section-head{margin-bottom:24px}
+.section-kicker{font-family:'SF Mono','Consolas','Liberation Mono',monospace;font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--gold);font-weight:600;margin-bottom:6px}
+.section-head h2{font-family:Georgia,'Times New Roman',serif;font-size:30px;font-weight:700;color:var(--forest);line-height:1.15}
+.section-head .lede{font-size:14.5px;color:var(--mute);margin-top:10px;max-width:760px;line-height:1.6}
+h3{font-family:Georgia,'Times New Roman',serif;font-size:19px;font-weight:600;color:var(--forest);margin:30px 0 11px}
+h4{font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--ink);margin:20px 0 7px}
+p{margin-bottom:11px;font-size:13.5px;line-height:1.72;color:#2c2c2c}
+ul,ol{padding-left:20px;margin:8px 0 12px}
+li{margin-bottom:5px;font-size:13.5px;line-height:1.62}
+code{font-family:'SF Mono','Consolas','Liberation Mono',monospace;font-size:11px;background:#f0ede5;padding:1px 5px;border-radius:4px;color:var(--forest)}
+strong{font-weight:700}
+
+/* tables */
+table.t{border-collapse:collapse;width:100%;margin:14px 0;font-size:12px}
+table.t th{background:var(--forest);color:#fff;padding:8px 11px;text-align:left;font-weight:600;font-size:11px;letter-spacing:.03em}
+table.t th:first-child{border-radius:5px 0 0 0}table.t th:last-child{border-radius:0 5px 0 0}
+table.t td{padding:7px 11px;border-bottom:1px solid var(--line);vertical-align:top;line-height:1.5}
+table.t tr:last-child td{border-bottom:none}
+table.t tr:nth-child(even) td{background:#FAFAF6}
+
+/* callouts */
+.callout{display:flex;gap:11px;border-radius:9px;padding:12px 15px;margin:14px 0;font-size:12.5px;line-height:1.6}
+.callout .i{font-size:15px;flex-shrink:0}
+.callout.info{background:var(--s6bg);border:1px solid #c5d9ed}
+.callout.warn{background:var(--s5bg);border:1px solid #e8c07a}
+.callout.good{background:var(--s2bg);border:1px solid #9dcdb8}
+.callout.crit{background:var(--s4bg);border:1px solid #e0a0a8}
+.callout strong{display:block;margin-bottom:2px}
+
+/* chips */
+.chip{display:inline-block;padding:2px 8px;border-radius:5px;font-size:10.5px;font-weight:600}
+.chip.b{background:var(--s1bg);color:var(--s1)}.chip.g{background:var(--s2bg);color:var(--s2)}
+.chip.p{background:var(--s3bg);color:var(--s3)}.chip.r{background:var(--s4bg);color:var(--s4)}
+.chip.o{background:var(--s5bg);color:var(--s5)}.chip.gold{background:var(--gold-p);color:#7a5015}
+
+/* diagram wrap */
+.diagram-wrap{margin:18px 0;border:1px solid var(--line);border-radius:12px;padding:20px;background:linear-gradient(180deg,#fdfdfb 0%,#f9f8f4 100%)}
+.diagram-title{font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--mute);margin-bottom:14px;text-align:center}
+.diagram-wrap svg{width:100%;height:auto;display:block}
+figcaption{font-size:11px;color:var(--mute);text-align:center;margin-top:10px;font-style:italic}
+
+/* metric cards */
+.metrics{display:grid;grid-template-columns:repeat(4,1fr);gap:11px;margin:16px 0}
+.metric{background:var(--soft);border:1px solid var(--line);border-radius:9px;padding:13px 15px}
+.metric .mv{font-family:Georgia,'Times New Roman',serif;font-size:26px;font-weight:700;color:var(--forest);line-height:1}
+.metric .ml{font-size:11px;color:var(--mute);margin-top:4px;line-height:1.35}
+
+/* two-col */
+.cols2{display:grid;grid-template-columns:1fr 1fr;gap:18px;margin:14px 0}
+
+/* layered architecture rows */
+.layers{border:1px solid var(--line);border-radius:11px;overflow:hidden;margin:16px 0}
+.lrow{display:flex;border-bottom:1px solid var(--line)}
+.lrow:last-child{border-bottom:none}
+.lname{width:120px;flex-shrink:0;padding:13px 14px;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.04em;display:flex;align-items:center;text-align:center;line-height:1.3;border-right:1px solid var(--line)}
+.ldetail{padding:12px 16px;font-size:12.5px;line-height:1.6;color:#2c2c2c}
+.ldetail code{font-size:10.5px}
+
+.footer-note{margin-top:40px;padding-top:18px;border-top:1px solid var(--line);font-size:11px;color:var(--mute)}
+
+/* ---- merged-in component rules from Architecture doc ---- */
+
+:root{--forest:#14302A;--green:#1A4D3C;--teal:#2C6E5A;--gold:#B8862B;--gold-l:#E8C778;--gold-p:#FBF4E4;
+--ink:#1a1a1a;--mute:#5a6472;--soft:#F7F5F0;--line:#E5DFD0;
+--s1:#2d4ab3;--s1bg:#EEF1FB;--s2:#0e5c40;--s2bg:#E8F5EE;--s3:#6b21a8;--s3bg:#F4ECF9;
+--s4:#8A2E3B;--s4bg:#FDF0F1;--s5:#8a5a1a;--s5bg:#FDF6EC;--s6:#1F3A52;--s6bg:#EEF3FA;}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{font-size:13.5px}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;color:var(--ink);line-height:1.7;background:#fff}
+@page{size:A4;margin:13mm 0 15mm 0}
+@media print{.page-break{page-break-before:always}.avoid-break,figure,table,.diagram-wrap{page-break-inside:avoid}h2,h3{page-break-after:avoid}body{font-size:10.5px}}
+.wrap{max-width:1000px;margin:0 auto;padding:0 38px}
+.cover{background:var(--forest);color:#fff;padding:76px 60px 56px;min-height:262mm;position:relative;overflow:hidden;page-break-after:always}
+.cover::before{content:'';position:absolute;top:-120px;right:-120px;width:500px;height:500px;border-radius:50%;background:radial-gradient(circle,rgba(184,134,43,.16) 0%,transparent 70%)}
+.cover::after{content:'';position:absolute;bottom:-150px;left:-110px;width:460px;height:460px;border-radius:50%;background:radial-gradient(circle,rgba(44,110,90,.18) 0%,transparent 70%)}
+.ci{position:relative;z-index:2}
+.cover .cls{font-family:'SF Mono','Consolas','Liberation Mono',monospace;font-size:11px;letter-spacing:.2em;text-transform:uppercase;color:var(--gold-l);margin-bottom:30px}
+.logo{width:60px;height:60px;border-radius:15px;background:linear-gradient(135deg,var(--gold),var(--gold-l));display:flex;align-items:center;justify-content:center;font-family:Georgia,'Times New Roman',serif;font-size:32px;font-weight:700;color:var(--forest);margin-bottom:28px}
+.cover h1{font-family:Georgia,'Times New Roman',serif;font-size:54px;font-weight:700;line-height:1.05;margin-bottom:16px}
+.cover h1 span{color:var(--gold-l)}
+.cover .sub{font-size:17px;color:rgba(255,255,255,.72);max-width:600px;line-height:1.55;margin-bottom:54px}
+.cmeta{display:grid;grid-template-columns:1fr 1fr;gap:20px 40px;max-width:640px;border-top:1px solid rgba(255,255,255,.16);padding-top:28px}
+.cmeta .k{font-size:10px;letter-spacing:.08em;text-transform:uppercase;color:rgba(255,255,255,.42);margin-bottom:3px}
+.cmeta .v{font-size:13.5px;color:rgba(255,255,255,.9);font-weight:500}
+.cfoot{position:absolute;bottom:44px;left:60px;right:60px;display:flex;justify-content:space-between;font-size:11px;color:rgba(255,255,255,.4);z-index:2}
+.section{padding:46px 0 8px}
+.kicker{font-family:'SF Mono','Consolas','Liberation Mono',monospace;font-size:11px;letter-spacing:.13em;text-transform:uppercase;color:var(--gold);font-weight:600;margin-bottom:6px}
+h2{font-family:Georgia,'Times New Roman',serif;font-size:28px;font-weight:700;color:var(--forest);line-height:1.15;margin-bottom:8px}
+.lede{font-size:14px;color:var(--mute);max-width:780px;margin-bottom:18px;line-height:1.6}
+h3{font-family:Georgia,'Times New Roman',serif;font-size:18px;font-weight:600;color:var(--forest);margin:26px 0 10px}
+p{margin-bottom:11px;font-size:13.5px;line-height:1.72;color:#2c2c2c}
+ul,ol{padding-left:20px;margin:7px 0 12px}li{margin-bottom:5px;font-size:13.5px}
+code{font-family:'SF Mono','Consolas','Liberation Mono',monospace;font-size:11px;background:#f0ede5;padding:1px 5px;border-radius:4px;color:var(--forest)}
+strong{font-weight:700}
+table.t{border-collapse:collapse;width:100%;margin:13px 0;font-size:12px}
+table.t th{background:var(--forest);color:#fff;padding:8px 11px;text-align:left;font-weight:600;font-size:11px}
+table.t th:first-child{border-radius:5px 0 0 0}table.t th:last-child{border-radius:0 5px 0 0}
+table.t td{padding:7px 11px;border-bottom:1px solid var(--line);vertical-align:top;line-height:1.5}
+table.t tr:last-child td{border-bottom:none}table.t tr:nth-child(even) td{background:#FAFAF6}
+.diagram-wrap{margin:18px 0;border:1px solid var(--line);border-radius:12px;padding:20px;background:linear-gradient(180deg,#fdfdfb,#f9f8f4)}
+.diagram-title{font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--mute);margin-bottom:14px;text-align:center}
+.diagram-wrap svg{width:100%;height:auto;display:block}
+figcaption{font-size:11px;color:var(--mute);text-align:center;margin-top:10px;font-style:italic}
+.metrics{display:grid;grid-template-columns:repeat(4,1fr);gap:11px;margin:15px 0}
+.metric{background:var(--soft);border:1px solid var(--line);border-radius:9px;padding:13px 15px}
+.metric .mv{font-family:Georgia,'Times New Roman',serif;font-size:25px;font-weight:700;color:var(--forest);line-height:1}
+.metric .ml{font-size:11px;color:var(--mute);margin-top:4px;line-height:1.35}
+.callout{display:flex;gap:11px;border-radius:9px;padding:13px 16px;margin:14px 0;font-size:13px;line-height:1.6}
+.callout .i{font-size:16px;flex-shrink:0}
+.callout.info{background:var(--s6bg);border:1px solid #c5d9ed}.callout.good{background:var(--s2bg);border:1px solid #9dcdb8}
+.callout.warn{background:var(--s5bg);border:1px solid #e8c07a}.callout strong{display:block;margin-bottom:2px}
+.chip{display:inline-block;padding:1px 7px;border-radius:4px;font-size:10px;font-weight:600}
+.chip.new{background:var(--s2bg);color:var(--s2)}
+.footer-note{margin-top:36px;padding-top:16px;border-top:1px solid var(--line);font-size:11px;color:var(--mute)}
+
+</style></head><body>
+<div class="cover"><div class="cover-inner ci">
+<div class="doc-class cls">Technical Design &amp; Architecture · Controlled · DOC-TDA-001</div>
+<div class="logo-mark logo">B</div>
+<h1>Brata <span>TPRM</span><br>Technical Design<br>&amp; Architecture</h1>
+<p class="subtitle sub">The unified technical reference for the Brata Third-Party Risk Management platform — system architecture, services, databases, endpoints, data flows, infrastructure, security controls, and the user model. Grounded in the deployed v4.9.0 codebase.</p>
+<div class="cover-meta cmeta">
+<div class="cover-meta-item"><div class="label k">Document ID</div><div class="val v">DOC-TDA-001 (merges TDD + ARC)</div></div>
+<div class="cover-meta-item"><div class="label k">Version</div><div class="val v">4.9.0 · 2 July 2026</div></div>
+<div class="cover-meta-item"><div class="label k">Platform scale</div><div class="val v">398 endpoints · 90 tables · 53 modules</div></div>
+<div class="cover-meta-item"><div class="label k">AI surface</div><div class="val v">31 prompts · 12 domains · 6 providers</div></div>
+<div class="cover-meta-item"><div class="label k">Runtime</div><div class="val v">Python 3.12 · FastAPI · SQLAlchemy 2.0</div></div>
+<div class="cover-meta-item"><div class="label k">Classification</div><div class="val v">Confidential — Internal &amp; Design Partners</div></div>
+</div></div>
+<div class="cover-foot cfoot"><span>Brata — BRO Risk Oracle</span><span>github.com/brata-platform/brata</span></div>
+</div><div class="wrap">
+<div class="toc">
+<h2>Contents</h2>
+<ol>
+<li><span class="toc-title">Executive &amp; system overview</span><span class="toc-desc">Purpose, principles, capability map</span></li>
+<li><span class="toc-title">System architecture</span><span class="toc-desc">Detailed component diagram, layered design</span></li>
+<li><span class="toc-title">Endpoint inventory</span><span class="toc-desc">398 endpoints by namespace &amp; domain</span></li>
+<li><span class="toc-title">Data flow</span><span class="toc-desc">Request lifecycle, assessment &amp; AI flows</span></li>
+<li><span class="toc-title">Data model &amp; repository</span><span class="toc-desc">Entities, IDs, stores, repo layout</span></li>
+<li><span class="toc-title">Service module catalogue</span><span class="toc-desc">50 feature modules</span></li>
+<li><span class="toc-title">Infrastructure &amp; deployment</span><span class="toc-desc">Render topology, environments, scaling</span></li>
+<li><span class="toc-title">Security &amp; controls</span><span class="toc-desc">Seven layers, AI governance, audit</span></li>
+<li><span class="toc-title">User &amp; access model</span><span class="toc-desc">Roles, permissions, authentication</span></li>
+<li><span class="toc-title">Reliability &amp; release changes</span><span class="toc-desc">v4.2.1 / v4.2.2 hardening</span></li>
+<li><span class="toc-title">Release changes v4.6 &ndash; v4.9</span><span class="toc-desc">Connectors, Content Studio, Layout config, brain map, hardening</span></li>
+<li><span class="toc-title">Non-functional &amp; roadmap</span><span class="toc-desc">Performance, gaps, multi-tenancy</span></li>
+</ol>
+</div><div class="section page-break" id="overview">
+  <div class="section-head">
+    <div class="section-kicker">SECTION 01</div>
+    <h2>Executive &amp; system overview</h2>
+    <p class="lede">Brata is an AI-first third-party risk management platform that governs the full lifecycle of every vendor relationship &mdash; onboarding, assessment, contracting, monitoring, incident response, and exit &mdash; on a deterministic rules engine augmented by a governed AI layer.</p>
+  </div>
+
+  <div class="metrics">
+    <div class="metric"><div class="mv">342</div><div class="ml">REST API endpoints (v1 + v2)</div></div>
+    <div class="metric"><div class="mv">88</div><div class="ml">Database tables (SQLAlchemy ORM)</div></div>
+    <div class="metric"><div class="mv">50</div><div class="ml">Feature modules</div></div>
+    <div class="metric"><div class="mv">480</div><div class="ml">Automated tests (0 failures)</div></div>
+    <div class="metric"><div class="mv">31</div><div class="ml">Governed AI prompts</div></div>
+    <div class="metric"><div class="mv">10</div><div class="ml">Named specialist agents</div></div>
+    <div class="metric"><div class="mv">6</div><div class="ml">Pluggable LLM providers</div></div>
+    <div class="metric"><div class="mv">23</div><div class="ml">User-facing views</div></div>
+  </div>
+
+  <h3>1.1 Design principles</h3>
+  <table class="t">
+    <tr><th>Principle</th><th>Statement</th><th>Why it matters</th></tr>
+    <tr><td><strong>Deterministic-first</strong></td><td>Every workflow produces a correct outcome with no live AI model. AI enriches; it never gates.</td><td>The platform cannot be taken down by a provider outage; outputs are auditable.</td></tr>
+    <tr><td><strong>Single source of truth</strong></td><td>One authoritative record per entity, identified by a human-readable prefixed ID.</td><td>Safe to expose in URLs and audit logs; no integer enumeration.</td></tr>
+    <tr><td><strong>Risk-averse defaults</strong></td><td>Unknown facts resolve to the worst case (unscored domain &rarr; max risk).</td><td>The system never under-states risk through missing data.</td></tr>
+    <tr><td><strong>Everything audited</strong></td><td>Every state change writes an immutable audit record.</td><td>Answers &ldquo;what did you know, and when?&rdquo; for any vendor at any time.</td></tr>
+    <tr><td><strong>AI advisory only</strong></td><td>No AI output changes a record without human sign-off.</td><td>The assessor&rsquo;s documented judgement is the system of record.</td></tr>
+    <tr><td><strong>Injection isolation</strong></td><td>Third-party text is wrapped in untrusted tags before any AI prompt.</td><td>Structural defence against prompt injection from vendor documents.</td></tr>
+  </table>
+
+  <h3>1.2 Capability map</h3>
+  <div class="diagram-wrap avoid-break">
+    <div class="diagram-title">Figure 1 — Platform capability map</div>
+    <svg viewBox="0 0 900 360" xmlns="http://www.w3.org/2000/svg" font-family="Inter,sans-serif">
+      <!-- lifecycle band -->
+      <defs>
+        <linearGradient id="gflow" x1="0" y1="0" x2="1" y2="0">
+          <stop offset="0" stop-color="#1A4D3C"/><stop offset="1" stop-color="#2C6E5A"/>
+        </linearGradient>
+      </defs>
+      <!-- top lifecycle arrow -->
+      <rect x="20" y="20" width="860" height="46" rx="10" fill="url(#gflow)"/>
+      <text x="450" y="40" text-anchor="middle" fill="#E8C778" font-size="11" font-weight="700" letter-spacing="2">VENDOR LIFECYCLE</text>
+      <text x="450" y="56" text-anchor="middle" fill="#fff" font-size="12">Onboard &#8594; Assess &#8594; Contract &#8594; Monitor &#8594; Incident &#8594; Exit</text>
+
+      <!-- four capability pillars -->
+      <g>
+        <rect x="20" y="92" width="205" height="120" rx="9" fill="#EEF1FB" stroke="#b3c2f0"/>
+        <text x="122" y="116" text-anchor="middle" fill="#2d4ab3" font-size="12" font-weight="700">Assessment</text>
+        <text x="122" y="138" text-anchor="middle" fill="#333" font-size="10">ProAssess 8-stage</text>
+        <text x="122" y="154" text-anchor="middle" fill="#333" font-size="10">BroAssess agent</text>
+        <text x="122" y="170" text-anchor="middle" fill="#333" font-size="10">IRQ / DDQ / residual</text>
+        <text x="122" y="186" text-anchor="middle" fill="#333" font-size="10">Decision memo</text>
+      </g>
+      <g>
+        <rect x="240" y="92" width="205" height="120" rx="9" fill="#E8F5EE" stroke="#9dcdb8"/>
+        <text x="342" y="116" text-anchor="middle" fill="#0e5c40" font-size="12" font-weight="700">Intelligence</text>
+        <text x="342" y="138" text-anchor="middle" fill="#333" font-size="10">Sanctions / AML</text>
+        <text x="342" y="154" text-anchor="middle" fill="#333" font-size="10">Financial DD (Vera)</text>
+        <text x="342" y="170" text-anchor="middle" fill="#333" font-size="10">Reputation scan</text>
+        <text x="342" y="186" text-anchor="middle" fill="#333" font-size="10">Continuous monitoring</text>
+      </g>
+      <g>
+        <rect x="460" y="92" width="205" height="120" rx="9" fill="#F4ECF9" stroke="#c4a8e8"/>
+        <text x="562" y="116" text-anchor="middle" fill="#6b21a8" font-size="12" font-weight="700">Resilience</text>
+        <text x="562" y="138" text-anchor="middle" fill="#333" font-size="10">Exit planning (Viny)</text>
+        <text x="562" y="154" text-anchor="middle" fill="#333" font-size="10">4th-party mapping</text>
+        <text x="562" y="170" text-anchor="middle" fill="#333" font-size="10">Scenario simulator</text>
+        <text x="562" y="186" text-anchor="middle" fill="#333" font-size="10">OSS / SBOM register</text>
+      </g>
+      <g>
+        <rect x="680" y="92" width="200" height="120" rx="9" fill="#FDF6EC" stroke="#e8c07a"/>
+        <text x="780" y="116" text-anchor="middle" fill="#8a5a1a" font-size="12" font-weight="700">Governance</text>
+        <text x="780" y="138" text-anchor="middle" fill="#333" font-size="10">Contracts (Matt)</text>
+        <text x="780" y="154" text-anchor="middle" fill="#333" font-size="10">Findings &amp; remediation</text>
+        <text x="780" y="170" text-anchor="middle" fill="#333" font-size="10">Board pack</text>
+        <text x="780" y="186" text-anchor="middle" fill="#333" font-size="10">Audit trail</text>
+      </g>
+
+      <!-- foundation band -->
+      <rect x="20" y="232" width="860" height="50" rx="9" fill="#14302A"/>
+      <text x="450" y="252" text-anchor="middle" fill="#E8C778" font-size="11" font-weight="700" letter-spacing="1">DETERMINISTIC ENGINE + GOVERNED AI LAYER</text>
+      <text x="450" y="270" text-anchor="middle" fill="#fff" font-size="10.5">Scoring &middot; Methodology &middot; Prompt registry &middot; AI ledger &middot; RBAC &middot; Audit</text>
+
+      <!-- data band -->
+      <rect x="20" y="300" width="860" height="42" rx="9" fill="#F7F5F0" stroke="#E5DFD0"/>
+      <text x="450" y="320" text-anchor="middle" fill="#14302A" font-size="11" font-weight="700">DATA LAYER</text>
+      <text x="450" y="335" text-anchor="middle" fill="#5a6472" font-size="10">SQLAlchemy 2.0 &middot; SQLite (dev) / Postgres (prod) &middot; 87 tables &middot; base64 document store</text>
+    </svg>
+    <figcaption>Four capability pillars over a shared deterministic + AI foundation and a single data layer.</figcaption>
+  </div>
+</div>
+
+
+<div class="section page-break" id="arch">
+<div class="kicker">SECTION 02</div>
+<h2>System architecture</h2>
+<p class="lede">Brata is a single FastAPI service organised into clear tiers: a browser SPA, a versioned API surface of 376 endpoints, a governed AI gateway, 50 feature services, and a portable data layer. External egress is limited to LLM providers and public risk-data feeds. The diagram below shows every major component, the data stores, and how requests flow.</p>
+
+<div class="metrics">
+<div class="metric"><div class="mv">398</div><div class="ml">REST endpoints (v1 + v2 + auth/SCIM)</div></div>
+<div class="metric"><div class="mv">88</div><div class="ml">Tables (86 ORM + 2 raw-SQL)</div></div>
+<div class="metric"><div class="mv">50</div><div class="ml">Feature service modules</div></div>
+<div class="metric"><div class="mv">6</div><div class="ml">Pluggable LLM providers + failover</div></div>
+</div>
+
+<div class="diagram-wrap avoid-break">
+<div class="diagram-title">Figure 1 — Detailed system architecture</div>
+<svg viewBox="0 0 920 720" xmlns="http://www.w3.org/2000/svg" font-family="Inter,sans-serif">
+<defs>
+<marker id="ar" markerWidth="9" markerHeight="9" refX="7" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 Z" fill="#5a6472"/></marker>
+<marker id="arg" markerWidth="9" markerHeight="9" refX="7" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 Z" fill="#2C6E5A"/></marker>
+<marker id="arp" markerWidth="9" markerHeight="9" refX="7" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 Z" fill="#6b21a8"/></marker>
+</defs>
+
+<!-- ===== CLIENT TIER ===== -->
+<rect x="20" y="16" width="880" height="58" rx="9" fill="#14302A"/>
+<text x="34" y="38" fill="#E8C778" font-size="11" font-weight="700">CLIENT</text>
+<rect x="120" y="26" width="220" height="38" rx="6" fill="rgba(255,255,255,0.08)" stroke="#3a5a50"/>
+<text x="230" y="42" text-anchor="middle" fill="#fff" font-size="11" font-weight="600">Vanilla-JS SPA (app.js)</text>
+<text x="230" y="55" text-anchor="middle" fill="#a9c5bb" font-size="8.5">23 views · Bearer token · api()/api2()</text>
+<rect x="360" y="26" width="200" height="38" rx="6" fill="rgba(255,255,255,0.08)" stroke="#3a5a50"/>
+<text x="460" y="42" text-anchor="middle" fill="#fff" font-size="11" font-weight="600">Render health probes</text>
+<text x="460" y="55" text-anchor="middle" fill="#a9c5bb" font-size="8.5">/healthz · /readyz</text>
+<rect x="580" y="26" width="200" height="38" rx="6" fill="rgba(255,255,255,0.08)" stroke="#3a5a50"/>
+<text x="680" y="42" text-anchor="middle" fill="#fff" font-size="11" font-weight="600">IdP / SCIM clients</text>
+<text x="680" y="55" text-anchor="middle" fill="#a9c5bb" font-size="8.5">OIDC · SAML · SCIM v2</text>
+
+<!-- ===== MIDDLEWARE ===== -->
+<rect x="20" y="90" width="880" height="34" rx="7" fill="#EEF1FB" stroke="#b3c2f0"/>
+<text x="460" y="111" text-anchor="middle" fill="#2d4ab3" font-size="11" font-weight="600">MIDDLEWARE  ·  security headers (CSP/HSTS/X-Frame)  ·  rate-limit 30/60s/IP  ·  JWT auth  ·  RBAC require()  ·  Pydantic validation</text>
+
+<!-- ===== API TIER ===== -->
+<rect x="20" y="140" width="880" height="118" rx="9" fill="#E8F5EE" stroke="#9dcdb8"/>
+<text x="34" y="160" fill="#0e5c40" font-size="11" font-weight="700">API SURFACE · 398 endpoints</text>
+<text x="820" y="160" fill="#0e5c40" font-size="9">FastAPI create_app(db_url)</text>
+<text x="34" y="184" fill="#0e5c40" font-size="9" font-weight="700">/api/v2 (registry · 222)</text><rect x="34" y="190" width="135" height="20" rx="4" fill="#fff" stroke="#9dcdb8"/><text x="40" y="203.5" fill="#0e5c40" font-size="8.7" font-weight="600">vendors</text><text x="163" y="203.5" text-anchor="end" fill="#888" font-size="8">7</text><rect x="175" y="190" width="135" height="20" rx="4" fill="#fff" stroke="#9dcdb8"/><text x="181" y="203.5" fill="#0e5c40" font-size="8.7" font-weight="600">engagements</text><text x="304" y="203.5" text-anchor="end" fill="#888" font-size="8">14</text><rect x="316" y="190" width="135" height="20" rx="4" fill="#fff" stroke="#9dcdb8"/><text x="322" y="203.5" fill="#0e5c40" font-size="8.7" font-weight="600">assessments</text><text x="445" y="203.5" text-anchor="end" fill="#888" font-size="8">9</text><rect x="457" y="190" width="135" height="20" rx="4" fill="#fff" stroke="#9dcdb8"/><text x="463" y="203.5" fill="#0e5c40" font-size="8.7" font-weight="600">findings</text><text x="586" y="203.5" text-anchor="end" fill="#888" font-size="8">9</text><rect x="598" y="190" width="135" height="20" rx="4" fill="#fff" stroke="#9dcdb8"/><text x="604" y="203.5" fill="#0e5c40" font-size="8.7" font-weight="600">remediations</text><text x="727" y="203.5" text-anchor="end" fill="#888" font-size="8">4</text><rect x="739" y="190" width="135" height="20" rx="4" fill="#fff" stroke="#9dcdb8"/><text x="745" y="203.5" fill="#0e5c40" font-size="8.7" font-weight="600">incidents</text><text x="868" y="203.5" text-anchor="end" fill="#888" font-size="8">11</text><rect x="34" y="214" width="135" height="20" rx="4" fill="#fff" stroke="#9dcdb8"/><text x="40" y="227.5" fill="#0e5c40" font-size="8.7" font-weight="600">contracts</text><text x="163" y="227.5" text-anchor="end" fill="#888" font-size="8">8</text><rect x="175" y="214" width="135" height="20" rx="4" fill="#fff" stroke="#9dcdb8"/><text x="181" y="227.5" fill="#0e5c40" font-size="8.7" font-weight="600">exit</text><text x="304" y="227.5" text-anchor="end" fill="#888" font-size="8">11</text><rect x="316" y="214" width="135" height="20" rx="4" fill="#fff" stroke="#9dcdb8"/><text x="322" y="227.5" fill="#0e5c40" font-size="8.7" font-weight="600">sanctions</text><text x="445" y="227.5" text-anchor="end" fill="#888" font-size="8">8</text><rect x="457" y="214" width="135" height="20" rx="4" fill="#fff" stroke="#9dcdb8"/><text x="463" y="227.5" fill="#0e5c40" font-size="8.7" font-weight="600">pestle</text><text x="586" y="227.5" text-anchor="end" fill="#888" font-size="8">7</text><rect x="598" y="214" width="135" height="20" rx="4" fill="#fff" stroke="#9dcdb8"/><text x="604" y="227.5" fill="#0e5c40" font-size="8.7" font-weight="600">performance</text><text x="727" y="227.5" text-anchor="end" fill="#888" font-size="8">15</text><rect x="739" y="214" width="135" height="20" rx="4" fill="#fff" stroke="#9dcdb8"/><text x="745" y="227.5" fill="#0e5c40" font-size="8.7" font-weight="600">oss</text><text x="868" y="227.5" text-anchor="end" fill="#888" font-size="8">11</text><rect x="34" y="238" width="135" height="20" rx="4" fill="#fff" stroke="#9dcdb8"/><text x="40" y="251.5" fill="#0e5c40" font-size="8.7" font-weight="600">regulations</text><text x="163" y="251.5" text-anchor="end" fill="#888" font-size="8">6</text><rect x="175" y="238" width="135" height="20" rx="4" fill="#fff" stroke="#9dcdb8"/><text x="181" y="251.5" fill="#0e5c40" font-size="8.7" font-weight="600">integrity</text><text x="304" y="251.5" text-anchor="end" fill="#888" font-size="8">6</text><rect x="316" y="238" width="135" height="20" rx="4" fill="#fff" stroke="#9dcdb8"/><text x="322" y="251.5" fill="#0e5c40" font-size="8.7" font-weight="600">management</text><text x="445" y="251.5" text-anchor="end" fill="#888" font-size="8">6</text>
+<!-- ===== AI GATEWAY ===== -->
+<rect x="20" y="276" width="560" height="120" rx="9" fill="#F4ECF9" stroke="#c4a8e8"/>
+<text x="34" y="296" fill="#6b21a8" font-size="11" font-weight="700">AI GATEWAY — llm_config.complete()  ·  single chokepoint</text>
+<text x="300" y="318" text-anchor="middle" fill="#444" font-size="9.5">budget cap → SDK check → provider resolution → prompt registry (31)</text>
+<text x="300" y="333" text-anchor="middle" fill="#444" font-size="9.5">→ untrusted_document wrap → model call → parse_json_strict → ledger</text>
+<rect x="34" y="344" width="252" height="44" rx="6" fill="#fff" stroke="#c4a8e8"/>
+<text x="160" y="360" text-anchor="middle" fill="#6b21a8" font-size="9.5" font-weight="700">RELIABILITY (v4.2.1)</text>
+<text x="160" y="373" text-anchor="middle" fill="#555" font-size="8.3">30s timeout · retry+jitter</text>
+<text x="160" y="383" text-anchor="middle" fill="#555" font-size="8.3">ordered provider failover</text>
+<rect x="300" y="344" width="266" height="44" rx="6" fill="#fff" stroke="#c4a8e8"/>
+<text x="433" y="360" text-anchor="middle" fill="#6b21a8" font-size="9.5" font-weight="700">12 DOMAINS · 10 AGENTS</text>
+<text x="433" y="373" text-anchor="middle" fill="#555" font-size="8.3">bro·exit·forms·finance·legal·risk</text>
+<text x="433" y="383" text-anchor="middle" fill="#555" font-size="8.3">Bro Sara Isaac Rhea Priya … Viny</text>
+
+<!-- ===== AGENT ENGINE ===== -->
+<rect x="596" y="276" width="304" height="120" rx="9" fill="#FBF4E4" stroke="#e8c07a"/>
+<text x="610" y="296" fill="#7a5015" font-size="11" font-weight="700">ORCHESTRATION</text>
+<rect x="610" y="306" width="276" height="26" rx="5" fill="#fff" stroke="#e8c07a"/>
+<text x="748" y="323" text-anchor="middle" fill="#7a5015" font-size="9.5" font-weight="600">master_service · registry_service</text>
+<rect x="610" y="336" width="276" height="24" rx="5" fill="#fff" stroke="#e8c07a"/>
+<text x="748" y="352" text-anchor="middle" fill="#7a5015" font-size="9">LangGraph 8-stage ProAssess StateGraph</text>
+<rect x="610" y="364" width="276" height="24" rx="5" fill="#fff" stroke="#e8c07a"/>
+<text x="748" y="380" text-anchor="middle" fill="#7a5015" font-size="9">scheduler (daemon) · monitoring sweep</text>
+
+<!-- ===== FEATURE SERVICES ===== -->
+<rect x="20" y="414" width="880" height="96" rx="9" fill="#F7F5F0" stroke="#E5DFD0"/>
+<text x="34" y="434" fill="#14302A" font-size="11" font-weight="700">FEATURE SERVICES · 50 modules</text>
+<text x="34" y="452.0" fill="#2c2c2c" font-size="9">• scoring</text><text x="207" y="452.0" fill="#2c2c2c" font-size="9">• fdd (Vera)</text><text x="380" y="452.0" fill="#2c2c2c" font-size="9">• sanctions</text><text x="553" y="452.0" fill="#2c2c2c" font-size="9">• documents</text><text x="726" y="452.0" fill="#2c2c2c" font-size="9">• monitoring</text><text x="34" y="467.5" fill="#2c2c2c" font-size="9">• exit_planning</text><text x="207" y="467.5" fill="#2c2c2c" font-size="9">• notifications</text><text x="380" y="467.5" fill="#2c2c2c" font-size="9">• security</text><text x="553" y="467.5" fill="#2c2c2c" font-size="9">• ai_ledger</text><text x="726" y="467.5" fill="#2c2c2c" font-size="9">• ai_json</text><text x="34" y="483.0" fill="#2c2c2c" font-size="9">• contracts</text><text x="207" y="483.0" fill="#2c2c2c" font-size="9">• reputation</text><text x="380" y="483.0" fill="#2c2c2c" font-size="9">• performance</text><text x="553" y="483.0" fill="#2c2c2c" font-size="9">• oss_register</text><text x="726" y="483.0" fill="#2c2c2c" font-size="9">• pestle</text><text x="34" y="498.5" fill="#2c2c2c" font-size="9">• methodology</text><text x="207" y="498.5" fill="#2c2c2c" font-size="9">• registry</text><text x="380" y="498.5" fill="#2c2c2c" font-size="9">• email_intake</text><text x="553" y="498.5" fill="#2c2c2c" font-size="9">• webhooks</text><text x="726" y="498.5" fill="#2c2c2c" font-size="9">• config_store</text>
+<!-- ===== DATA TIER ===== -->
+<rect x="20" y="528" width="560" height="86" rx="9" fill="#14302A"/>
+<text x="34" y="548" fill="#E8C778" font-size="11" font-weight="700">DATA LAYER · SQLAlchemy 2.0</text>
+<rect x="34" y="558" width="170" height="46" rx="6" fill="rgba(255,255,255,0.07)" stroke="#3a5a50"/>
+<text x="119" y="576" text-anchor="middle" fill="#fff" font-size="9.5" font-weight="600">Primary DB</text>
+<text x="119" y="589" text-anchor="middle" fill="#a9c5bb" font-size="8.3">SQLite (dev) / Postgres (prod)</text>
+<text x="119" y="599" text-anchor="middle" fill="#E8C778" font-size="8">WAL · busy_timeout (v4.2.1)</text>
+<rect x="214" y="558" width="170" height="46" rx="6" fill="rgba(255,255,255,0.07)" stroke="#3a5a50"/>
+<text x="299" y="576" text-anchor="middle" fill="#fff" font-size="9.5" font-weight="600">86 ORM tables</text>
+<text x="299" y="589" text-anchor="middle" fill="#a9c5bb" font-size="8.3">vendors·engagements·assessments</text>
+<text x="299" y="599" text-anchor="middle" fill="#a9c5bb" font-size="8.3">findings·contracts·6 FK indexes</text>
+<rect x="394" y="558" width="172" height="46" rx="6" fill="rgba(255,255,255,0.07)" stroke="#3a5a50"/>
+<text x="480" y="576" text-anchor="middle" fill="#fff" font-size="9.5" font-weight="600">Raw-SQL + blobs</text>
+<text x="480" y="589" text-anchor="middle" fill="#a9c5bb" font-size="8.3">ai_call_log · notif_log</text>
+<text x="480" y="599" text-anchor="middle" fill="#a9c5bb" font-size="8.3">base64 document store</text>
+
+<!-- ===== EXTERNAL ===== -->
+<rect x="596" y="528" width="304" height="86" rx="9" fill="#FDF0F1" stroke="#e0a0a8"/>
+<text x="610" y="548" fill="#8A2E3B" font-size="11" font-weight="700">EXTERNAL EGRESS</text>
+<rect x="610" y="558" width="134" height="46" rx="6" fill="#fff" stroke="#e0a0a8"/>
+<text x="677" y="575" text-anchor="middle" fill="#8A2E3B" font-size="9.5" font-weight="600">LLM providers</text>
+<text x="677" y="588" text-anchor="middle" fill="#555" font-size="8">Claude·OpenAI·Grok</text>
+<text x="677" y="598" text-anchor="middle" fill="#555" font-size="8">Manus·NVIDIA·custom</text>
+<rect x="752" y="558" width="134" height="46" rx="6" fill="#fff" stroke="#e0a0a8"/>
+<text x="819" y="575" text-anchor="middle" fill="#8A2E3B" font-size="9.5" font-weight="600">Risk data feeds</text>
+<text x="819" y="588" text-anchor="middle" fill="#555" font-size="8">OFAC·UN·EU·OFSI</text>
+<text x="819" y="598" text-anchor="middle" fill="#555" font-size="8">email intake · webhooks</text>
+
+<!-- ===== AUDIT BAND ===== -->
+<rect x="20" y="630" width="880" height="32" rx="7" fill="#EEF3FA" stroke="#c5d9ed"/>
+<text x="460" y="650" text-anchor="middle" fill="#1F3A52" font-size="10" font-weight="600">CROSS-CUTTING · immutable hash-chained audit_log · AI ledger (metadata-only) · RBAC · structured logging (log_json)</text>
+
+<!-- flow arrows -->
+<line x1="460" y1="74" x2="460" y2="90" stroke="#5a6472" stroke-width="1.4" marker-end="url(#ar)"/>
+<line x1="460" y1="124" x2="460" y2="140" stroke="#5a6472" stroke-width="1.4" marker-end="url(#ar)"/>
+<line x1="300" y1="258" x2="300" y2="276" stroke="#6b21a8" stroke-width="1.4" marker-end="url(#arp)"/>
+<line x1="748" y1="258" x2="748" y2="276" stroke="#2C6E5A" stroke-width="1.4" marker-end="url(#arg)"/>
+<line x1="300" y1="396" x2="300" y2="414" stroke="#5a6472" stroke-width="1.4" marker-end="url(#ar)"/>
+<line x1="748" y1="396" x2="748" y2="414" stroke="#5a6472" stroke-width="1.4" marker-end="url(#ar)"/>
+<line x1="300" y1="510" x2="300" y2="528" stroke="#5a6472" stroke-width="1.4" marker-end="url(#ar)"/>
+<line x1="566" y1="350" x2="610" y2="350" stroke="#6b21a8" stroke-width="1.3" stroke-dasharray="3 3" marker-end="url(#arp)"/>
+<line x1="744" y1="571" x2="752" y2="571" stroke="#8A2E3B" stroke-width="1" opacity="0.4"/>
+</svg>
+<figcaption>Single FastAPI service. Requests pass middleware → versioned API → feature services → data layer. All AI calls funnel through one governed gateway; egress is limited to LLM providers and public risk-data feeds.</figcaption>
+</div>
+</div>
+
+<div class="section page-break" id="endpoints">
+<div class="kicker">SECTION 03</div>
+<h2>Endpoint inventory</h2>
+<p class="lede">339 REST endpoints across two versioned namespaces plus auth/identity. /api/v1 is operational and AI-facing; /api/v2 is the registry-centric surface with richer schemas. Health/readiness now served from an extracted router (app/routers/health.py).</p>
+<table class="t">
+<tr><th>Namespace</th><th>Count</th><th>Principal domains (endpoint count)</th></tr>
+<tr><td><code>/api/v2</code> — registry</td><td>222</td><td>performance (15), vendor/vendors (18), oss (11), incidents (11), exit (11), findings (9), assessments (9), sanctions (8), contracts (8), engagements (14), pestle (7), regulations (6), integrity (6), management (6), methodology (5), remediations (4)</td></tr>
+<tr><td><code>/api/v1</code> — operational</td><td>109</td><td>ai (16), engagements (11), vendors (9), admin (9), notifications (7), agent (7), intel (4), audit (3), dashboard (3), connections/mcp (3), reassessments (3), findings (3), schedules (2), documents/email/evidence/fourth-party (2 each)</td></tr>
+<tr><td><code>/auth</code> · <code>/scim/v2</code></td><td>8</td><td>OIDC login + callback; SCIM v2 Users (5) and Groups (1) for enterprise provisioning</td></tr>
+<tr><td><code>/</code> (root, via router)</td><td>3</td><td>/api/v1/health, /healthz, /readyz</td></tr>
+</table>
+<div class="callout info"><span class="i">&#9432;</span><div><strong>Authorisation model</strong>Every endpoint declares its required permission via <code>Depends(require("perm.key"))</code>. A permission mismatch returns HTTP 403 before any data access. Health/readiness are intentionally unauthenticated for load-balancer probes.</div></div>
+</div>
+
+
+<div class="section page-break" id="dataflow">
+  <div class="section-head">
+    <div class="section-kicker">SECTION 04</div>
+    <h2>Data flow</h2>
+    <p class="lede">Three flows characterise the platform: the synchronous request lifecycle, the ProAssess assessment pipeline with its atomic auto-record chain, and the governed AI call path with its deterministic fallback.</p>
+  </div>
+
+  <h3>3.1 Request lifecycle</h3>
+  <div class="diagram-wrap avoid-break">
+    <div class="diagram-title">Figure 3 — Synchronous request lifecycle</div>
+    <svg viewBox="0 0 900 130" xmlns="http://www.w3.org/2000/svg" font-family="Inter,sans-serif">
+      <defs><marker id="a2" markerWidth="9" markerHeight="9" refX="7" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 Z" fill="#2C6E5A"/></marker></defs>
+      <g font-size="9.5" font-weight="600">
+        <rect x="8"  y="46" width="96" height="38" rx="7" fill="#14302A"/><text x="56" y="63" text-anchor="middle" fill="#fff">HTTP request</text><text x="56" y="76" text-anchor="middle" fill="#cdd" font-size="8">+ Bearer</text>
+        <rect x="124" y="46" width="96" height="38" rx="7" fill="#EEF1FB" stroke="#b3c2f0"/><text x="172" y="60" text-anchor="middle" fill="#2d4ab3">Sec headers</text><text x="172" y="73" text-anchor="middle" fill="#2d4ab3">+ rate limit</text>
+        <rect x="240" y="46" width="96" height="38" rx="7" fill="#EEF1FB" stroke="#b3c2f0"/><text x="288" y="60" text-anchor="middle" fill="#2d4ab3">Auth: JWT</text><text x="288" y="73" text-anchor="middle" fill="#2d4ab3">resolve user</text>
+        <rect x="356" y="46" width="96" height="38" rx="7" fill="#EEF1FB" stroke="#b3c2f0"/><text x="404" y="60" text-anchor="middle" fill="#2d4ab3">RBAC</text><text x="404" y="73" text-anchor="middle" fill="#2d4ab3">permission</text>
+        <rect x="472" y="46" width="96" height="38" rx="7" fill="#E8F5EE" stroke="#9dcdb8"/><text x="520" y="60" text-anchor="middle" fill="#0e5c40">Pydantic</text><text x="520" y="73" text-anchor="middle" fill="#0e5c40">validate</text>
+        <rect x="588" y="46" width="96" height="38" rx="7" fill="#FBF4E4" stroke="#e8c07a"/><text x="636" y="60" text-anchor="middle" fill="#7a5015">Feature /</text><text x="636" y="73" text-anchor="middle" fill="#7a5015">service</text>
+        <rect x="704" y="46" width="92" height="38" rx="7" fill="#14302A"/><text x="750" y="60" text-anchor="middle" fill="#fff">DB commit</text><text x="750" y="73" text-anchor="middle" fill="#E8C778" font-size="8">+ audit_log</text>
+        <rect x="816" y="46" width="78" height="38" rx="7" fill="#1A4D3C"/><text x="855" y="68" text-anchor="middle" fill="#fff">JSON resp</text>
+      </g>
+      <g stroke="#2C6E5A" stroke-width="1.4" marker-end="url(#a2)">
+        <line x1="104" y1="65" x2="122" y2="65"/><line x1="220" y1="65" x2="238" y2="65"/>
+        <line x1="336" y1="65" x2="354" y2="65"/><line x1="452" y1="65" x2="470" y2="65"/>
+        <line x1="568" y1="65" x2="586" y2="65"/><line x1="684" y1="65" x2="702" y2="65"/>
+        <line x1="796" y1="65" x2="814" y2="65"/>
+      </g>
+      <text x="404" y="22" text-anchor="middle" fill="#8A2E3B" font-size="9">403 on permission mismatch &mdash; before any data access</text>
+    </svg>
+    <figcaption>Authorisation precedes data access. A permission mismatch returns 403 before any row is read or written.</figcaption>
+  </div>
+
+  <h3>3.2 ProAssess assessment flow &amp; atomic auto-record chain</h3>
+  <p>When an assessor registers a completed ProAssess, the system executes a deterministic, atomic chain of 11 database writes &mdash; all succeed or all roll back. This is the platform&rsquo;s self-maintaining data model in action: gaps become findings, the vendor is enrolled for monitoring, and the risk profile is refreshed without any manual step.</p>
+  <div style="background:#FBF4E4;border:1px solid #e8c07a;border-left:4px solid #B8862B;border-radius:8px;padding:13px 16px;margin:14px 0;font-size:13px;line-height:1.55">
+    <b style="color:#7a5015">Methodology grounding (v4.5.0).</b> Both the conversational assessor (<b>BRO&nbsp;Chat</b>) and the autonomous assessor (<b>ProAssess</b>) are guided by the firm&rsquo;s methodology held in the <b>Methodology folder</b> &mdash; the active rows of the <code>methodology_doc</code> table, managed through the admin-only <b>Methodology&nbsp;Library</b>. At assessment time the platform calls <code>methodology.methodology_directive(session)</code>, which concatenates every <em>active</em> methodology document (capped, prefixed &ldquo;AUTHORITATIVE METHODOLOGY DOCUMENT &mdash; you MUST comply strictly&rdquo;) and injects it into the agent system prompt via <code>agents.build_system_prompt(&hellip;, methodology=&hellip;)</code>. BRO&nbsp;Chat (<code>bro_app</code> turn handler) and the AI-managed ProAssess path (<code>master_service.run_proassess_autonomous</code> &rarr; <code>_proassess_ai</code>) both resolve from this single source; the LangGraph 8-stage representation resolves the same directive via <code>langgraph_flow._resolve_methodology(session)</code>. When the folder is empty, all paths fall back to the identical <code>BEST_PRACTICE_DIRECTIVE</code> (PRA&nbsp;SS2/21, EBA, DORA, FSB, NIST&nbsp;SP&nbsp;800-161). The deterministic ProAssess scoring engine is rules-based and encodes the methodology weights directly, so it is unaffected by prompt grounding. <em>Note: the firm&rsquo;s methodology belongs in the Methodology&nbsp;Library, not the general Documents store, which holds per-vendor evidence and does not steer methodology.</em></div>
+  <div class="diagram-wrap avoid-break">
+    <div class="diagram-title">Figure 4 — ProAssess pipeline &amp; registration auto-record chain</div>
+    <svg viewBox="0 0 900 430" xmlns="http://www.w3.org/2000/svg" font-family="Inter,sans-serif">
+      <defs><marker id="a3" markerWidth="9" markerHeight="9" refX="7" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 Z" fill="#6b21a8"/></marker>
+      <marker id="a4" markerWidth="9" markerHeight="9" refX="7" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 Z" fill="#0e5c40"/></marker></defs>
+      <!-- 8 stages vertical left -->
+      <text x="150" y="20" text-anchor="middle" fill="#6b21a8" font-size="11" font-weight="700">8-STAGE PIPELINE</text>
+      <g font-size="9.5">
+<rect x="30" y="34" width="240" height="36" rx="6" fill="#F4ECF9" stroke="#c4a8e8"/><circle cx="50" cy="52" r="11" fill="#6b21a8"/><text x="50" y="56" text-anchor="middle" fill="#fff" font-weight="700">0</text><text x="72" y="49" fill="#333" font-weight="600">Context dump</text><text x="72" y="63" fill="#888" font-size="8.5">lead: Bro</text><line x1="150" y1="70" x2="150" y2="78" stroke="#6b21a8" stroke-width="1.3" marker-end="url(#a3)"/><rect x="30" y="78" width="240" height="36" rx="6" fill="#F4ECF9" stroke="#c4a8e8"/><circle cx="50" cy="96" r="11" fill="#6b21a8"/><text x="50" y="100" text-anchor="middle" fill="#fff" font-weight="700">1</text><text x="72" y="93" fill="#333" font-weight="600">Engagement details</text><text x="72" y="107" fill="#888" font-size="8.5">lead: Bro</text><line x1="150" y1="114" x2="150" y2="122" stroke="#6b21a8" stroke-width="1.3" marker-end="url(#a3)"/><rect x="30" y="122" width="240" height="36" rx="6" fill="#F4ECF9" stroke="#c4a8e8"/><circle cx="50" cy="140" r="11" fill="#6b21a8"/><text x="50" y="144" text-anchor="middle" fill="#fff" font-weight="700">2</text><text x="72" y="137" fill="#333" font-weight="600">IRQ</text><text x="72" y="151" fill="#888" font-size="8.5">lead: Sara</text><line x1="150" y1="158" x2="150" y2="166" stroke="#6b21a8" stroke-width="1.3" marker-end="url(#a3)"/><rect x="30" y="166" width="240" height="36" rx="6" fill="#F4ECF9" stroke="#c4a8e8"/><circle cx="50" cy="184" r="11" fill="#6b21a8"/><text x="50" y="188" text-anchor="middle" fill="#fff" font-weight="700">3</text><text x="72" y="181" fill="#333" font-weight="600">Inherent rating</text><text x="72" y="195" fill="#888" font-size="8.5">lead: Bro</text><line x1="150" y1="202" x2="150" y2="210" stroke="#6b21a8" stroke-width="1.3" marker-end="url(#a3)"/><rect x="30" y="210" width="240" height="36" rx="6" fill="#F4ECF9" stroke="#c4a8e8"/><circle cx="50" cy="228" r="11" fill="#6b21a8"/><text x="50" y="232" text-anchor="middle" fill="#fff" font-weight="700">4</text><text x="72" y="225" fill="#333" font-weight="600">Domain selection</text><text x="72" y="239" fill="#888" font-size="8.5">lead: Bro</text><line x1="150" y1="246" x2="150" y2="254" stroke="#6b21a8" stroke-width="1.3" marker-end="url(#a3)"/><rect x="30" y="254" width="240" height="36" rx="6" fill="#F4ECF9" stroke="#c4a8e8"/><circle cx="50" cy="272" r="11" fill="#6b21a8"/><text x="50" y="276" text-anchor="middle" fill="#fff" font-weight="700">5</text><text x="72" y="269" fill="#333" font-weight="600">DDQ</text><text x="72" y="283" fill="#888" font-size="8.5">lead: Isaac</text><line x1="150" y1="290" x2="150" y2="298" stroke="#6b21a8" stroke-width="1.3" marker-end="url(#a3)"/><rect x="30" y="298" width="240" height="36" rx="6" fill="#F4ECF9" stroke="#c4a8e8"/><circle cx="50" cy="316" r="11" fill="#6b21a8"/><text x="50" y="320" text-anchor="middle" fill="#fff" font-weight="700">6</text><text x="72" y="313" fill="#333" font-weight="600">Residual risk</text><text x="72" y="327" fill="#888" font-size="8.5">lead: Bro</text><rect x="30" y="342" width="240" height="36" rx="6" fill="#F4ECF9" stroke="#c4a8e8"/><circle cx="50" cy="360" r="11" fill="#6b21a8"/><text x="50" y="364" text-anchor="middle" fill="#fff" font-weight="700">7</text><text x="72" y="357" fill="#333" font-weight="600">Decision & memo</text><text x="72" y="371" fill="#888" font-size="8.5">lead: Bro</text>
+      </g>
+      <!-- arrow to registration -->
+      <line x1="270" y1="370" x2="340" y2="370" stroke="#6b21a8" stroke-width="1.6" marker-end="url(#a3)"/>
+      <text x="305" y="362" text-anchor="middle" fill="#6b21a8" font-size="9">register</text>
+
+      <!-- atomic chain right -->
+      <text x="600" y="20" text-anchor="middle" fill="#0e5c40" font-size="11" font-weight="700">ATOMIC AUTO-RECORD CHAIN (11 writes)</text>
+      <rect x="340" y="34" width="540" height="322" rx="10" fill="#E8F5EE" stroke="#9dcdb8"/>
+<circle cx="364" cy="56" r="9" fill="#0e5c40"/><text x="364" y="59.5" text-anchor="middle" fill="#fff" font-size="9" font-weight="700">1</text><text x="382" y="60" fill="#1a3a2a" font-size="10">AssessmentRecord → ASM-xxxxxx</text><circle cx="364" cy="83" r="9" fill="#0e5c40"/><text x="364" y="86.5" text-anchor="middle" fill="#fff" font-size="9" font-weight="700">2</text><text x="382" y="87" fill="#1a3a2a" font-size="10">EngagementRecord.inherent_band / .residual_band</text><circle cx="364" cy="110" r="9" fill="#0e5c40"/><text x="364" y="113.5" text-anchor="middle" fill="#fff" font-size="9" font-weight="700">3</text><text x="382" y="114" fill="#1a3a2a" font-size="10">stored_documents — ProAssess report JSON (ART)</text><circle cx="364" cy="137" r="9" fill="#0e5c40"/><text x="364" y="140.5" text-anchor="middle" fill="#fff" font-size="9" font-weight="700">4</text><text x="382" y="141" fill="#1a3a2a" font-size="10">FindingRecord per RISK (source=AI, Draft)</text><circle cx="364" cy="164" r="9" fill="#0e5c40"/><text x="364" y="167.5" text-anchor="middle" fill="#fff" font-size="9" font-weight="700">5</text><text x="382" y="168" fill="#1a3a2a" font-size="10">FindingRecord per GAP (severity=Medium)</text><circle cx="364" cy="191" r="9" fill="#0e5c40"/><text x="364" y="194.5" text-anchor="middle" fill="#fff" font-size="9" font-weight="700">6</text><text x="382" y="195" fill="#1a3a2a" font-size="10">vendor_master_ext.financial_health_band</text><circle cx="364" cy="218" r="9" fill="#0e5c40"/><text x="364" y="221.5" text-anchor="middle" fill="#fff" font-size="9" font-weight="700">7</text><text x="382" y="222" fill="#1a3a2a" font-size="10">vendor_monitor_signals (reputation)</text><circle cx="364" cy="245" r="9" fill="#0e5c40"/><text x="364" y="248.5" text-anchor="middle" fill="#fff" font-size="9" font-weight="700">8</text><text x="382" y="249" fill="#1a3a2a" font-size="10">dedup risk findings (skip same-title)</text><circle cx="364" cy="272" r="9" fill="#0e5c40"/><text x="364" y="275.5" text-anchor="middle" fill="#fff" font-size="9" font-weight="700">9</text><text x="382" y="276" fill="#1a3a2a" font-size="10">vendor_risk_profiles — refresh (worst-of)</text><circle cx="364" cy="299" r="9" fill="#0e5c40"/><text x="364" y="302.5" text-anchor="middle" fill="#fff" font-size="9" font-weight="700">10</text><text x="382" y="303" fill="#1a3a2a" font-size="10">fin_monitor_records — AUTO-EMPANEL vendor</text><circle cx="364" cy="326" r="9" fill="#0e5c40"/><text x="364" y="329.5" text-anchor="middle" fill="#fff" font-size="9" font-weight="700">11</text><text x="382" y="330" fill="#1a3a2a" font-size="10">engagement.open_actions recompute + audit_log</text>
+      <text x="450" y="392" fill="#8A2E3B" font-size="9.5" font-weight="600">All-or-nothing transaction — tables_written list returned + written to audit_log</text>
+      <text x="450" y="410" fill="#5a6472" font-size="9">Human gate: findings created as Draft — invisible until assessor confirms &amp; signs off</text>
+    </svg>
+    <figcaption>The 8-stage pipeline (left) feeds a single atomic registration that fans out into 11 writes (right). The vendor is auto-enrolled for financial monitoring on first registration.</figcaption>
+  </div>
+
+  <h3>3.3 Governed AI call path</h3>
+  <div class="diagram-wrap avoid-break">
+    <div class="diagram-title">Figure 5 — AI call path with deterministic fallback &amp; circuit breaker</div>
+    <svg viewBox="0 0 900 250" xmlns="http://www.w3.org/2000/svg" font-family="Inter,sans-serif">
+      <defs><marker id="a5" markerWidth="9" markerHeight="9" refX="7" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 Z" fill="#6b21a8"/></marker>
+      <marker id="a6" markerWidth="9" markerHeight="9" refX="7" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 Z" fill="#8a5a1a"/></marker></defs>
+      <rect x="20" y="20" width="120" height="40" rx="7" fill="#FBF4E4" stroke="#e8c07a"/><text x="80" y="38" text-anchor="middle" fill="#7a5015" font-size="10" font-weight="600">Feature needs</text><text x="80" y="51" text-anchor="middle" fill="#7a5015" font-size="10" font-weight="600">AI output</text>
+      <rect x="170" y="20" width="110" height="40" rx="7" fill="#F4ECF9" stroke="#c4a8e8"/><text x="225" y="38" text-anchor="middle" fill="#6b21a8" font-size="10" font-weight="600">Budget +</text><text x="225" y="51" text-anchor="middle" fill="#6b21a8" font-size="10" font-weight="600">SDK check</text>
+      <rect x="310" y="20" width="120" height="40" rx="7" fill="#F4ECF9" stroke="#c4a8e8"/><text x="370" y="38" text-anchor="middle" fill="#6b21a8" font-size="10" font-weight="600">Compose prompt</text><text x="370" y="51" text-anchor="middle" fill="#6b21a8" font-size="9">+ inject wrap</text>
+      <rect x="460" y="20" width="110" height="40" rx="7" fill="#6b21a8"/><text x="515" y="38" text-anchor="middle" fill="#fff" font-size="10" font-weight="600">Model call</text><text x="515" y="51" text-anchor="middle" fill="#E8C778" font-size="9">provider</text>
+      <rect x="600" y="20" width="120" height="40" rx="7" fill="#F4ECF9" stroke="#c4a8e8"/><text x="660" y="38" text-anchor="middle" fill="#6b21a8" font-size="10" font-weight="600">parse_json</text><text x="660" y="51" text-anchor="middle" fill="#6b21a8" font-size="9">_strict()</text>
+      <rect x="750" y="20" width="120" height="40" rx="7" fill="#1A4D3C"/><text x="810" y="38" text-anchor="middle" fill="#fff" font-size="10" font-weight="600">Result +</text><text x="810" y="51" text-anchor="middle" fill="#E8C778" font-size="9">ledger row</text>
+      <g stroke="#6b21a8" stroke-width="1.4" marker-end="url(#a5)">
+        <line x1="140" y1="40" x2="168" y2="40"/><line x1="280" y1="40" x2="308" y2="40"/>
+        <line x1="430" y1="40" x2="458" y2="40"/><line x1="570" y1="40" x2="598" y2="40"/><line x1="720" y1="40" x2="748" y2="40"/>
+      </g>
+      <!-- failure paths -->
+      <rect x="170" y="120" width="500" height="44" rx="8" fill="#FDF6EC" stroke="#e8c07a"/>
+      <text x="420" y="138" text-anchor="middle" fill="#8a5a1a" font-size="10.5" font-weight="700">CIRCUIT BREAKER</text>
+      <text x="420" y="154" text-anchor="middle" fill="#7a5015" font-size="9.5">budget exceeded · SDK missing · parse fail (after 1 repair retry) · model error</text>
+      <line x1="225" y1="60" x2="225" y2="118" stroke="#8a5a1a" stroke-width="1.3" stroke-dasharray="4 3" marker-end="url(#a6)"/>
+      <line x1="660" y1="60" x2="500" y2="118" stroke="#8a5a1a" stroke-width="1.3" stroke-dasharray="4 3" marker-end="url(#a6)"/>
+      <rect x="300" y="195" width="300" height="40" rx="8" fill="#E8F5EE" stroke="#9dcdb8"/>
+      <text x="450" y="213" text-anchor="middle" fill="#0e5c40" font-size="10.5" font-weight="700">Deterministic engine runs</text>
+      <text x="450" y="228" text-anchor="middle" fill="#0e5c40" font-size="9">UI badges output: "deterministic draft"</text>
+      <line x1="420" y1="164" x2="440" y2="193" stroke="#0e5c40" stroke-width="1.4" marker-end="url(#a4)"/>
+    </svg>
+    <figcaption>Any failure in the governed path falls through to the deterministic engine. The repair retry self-corrects one bad JSON output before falling back.</figcaption>
+  </div>
+</div>
+
+
+<div class="section page-break" id="datamodel">
+  <div class="section-head">
+    <div class="section-kicker">SECTION 05</div>
+    <h2>Data model &amp; repository</h2>
+    <p class="lede">88 (86 ORM + 2 raw-SQL) tables model the full TPRM domain. Every entity carries a human-readable prefixed ID and explicit foreign-key relationships. The repository is a single Python package with a clear module taxonomy.</p>
+  </div>
+
+  <h3>4.1 Core entity model</h3>
+  <div class="diagram-wrap avoid-break">
+    <div class="diagram-title">Figure 6 — Core entity relationships</div>
+    <svg viewBox="0 0 900 330" xmlns="http://www.w3.org/2000/svg" font-family="Inter,sans-serif">
+      <defs><marker id="er" markerWidth="9" markerHeight="9" refX="7" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 Z" fill="#2C6E5A"/></marker></defs>
+      <!-- Vendor -->
+      <rect x="370" y="20" width="160" height="46" rx="8" fill="#14302A"/><text x="450" y="40" text-anchor="middle" fill="#fff" font-size="12" font-weight="700">VendorRecord</text><text x="450" y="56" text-anchor="middle" fill="#E8C778" font-size="9">VEN-xxxxxx</text>
+      <!-- Group above -->
+      <rect x="370" y="-2" width="160" height="0" /> 
+      <!-- Engagement -->
+      <rect x="370" y="110" width="160" height="44" rx="8" fill="#1A4D3C"/><text x="450" y="129" text-anchor="middle" fill="#fff" font-size="11" font-weight="700">EngagementRecord</text><text x="450" y="145" text-anchor="middle" fill="#E8C778" font-size="9">ENG-xxxxxx</text>
+      <!-- Assessment -->
+      <rect x="370" y="195" width="160" height="44" rx="8" fill="#2C6E5A"/><text x="450" y="214" text-anchor="middle" fill="#fff" font-size="11" font-weight="700">AssessmentRecord</text><text x="450" y="230" text-anchor="middle" fill="#E8C778" font-size="9">ASM-xxxxxx (immutable)</text>
+      <!-- children of vendor: left -->
+      <rect x="40" y="105" width="150" height="40" rx="7" fill="#EEF1FB" stroke="#b3c2f0"/><text x="115" y="122" text-anchor="middle" fill="#2d4ab3" font-size="10" font-weight="600">ContractRecord</text><text x="115" y="136" text-anchor="middle" fill="#555" font-size="8.5">CTR-xxxxxx</text>
+      <rect x="40" y="155" width="150" height="40" rx="7" fill="#EEF1FB" stroke="#b3c2f0"/><text x="115" y="172" text-anchor="middle" fill="#2d4ab3" font-size="10" font-weight="600">ArtefactRecord</text><text x="115" y="186" text-anchor="middle" fill="#555" font-size="8.5">ART-xxxxxx (certs)</text>
+      <rect x="40" y="205" width="150" height="40" rx="7" fill="#EEF1FB" stroke="#b3c2f0"/><text x="115" y="222" text-anchor="middle" fill="#2d4ab3" font-size="10" font-weight="600">VendorScreening</text><text x="115" y="236" text-anchor="middle" fill="#555" font-size="8.5">sanctions/AML</text>
+      <rect x="40" y="255" width="150" height="40" rx="7" fill="#EEF1FB" stroke="#b3c2f0"/><text x="115" y="272" text-anchor="middle" fill="#2d4ab3" font-size="10" font-weight="600">vendor_risk_profile</text><text x="115" y="286" text-anchor="middle" fill="#555" font-size="8.5">consolidated bands</text>
+      <!-- children: right -->
+      <rect x="710" y="105" width="150" height="40" rx="7" fill="#F4ECF9" stroke="#c4a8e8"/><text x="785" y="122" text-anchor="middle" fill="#6b21a8" font-size="10" font-weight="600">FindingRecord</text><text x="785" y="136" text-anchor="middle" fill="#555" font-size="8.5">FND-xxxxxx</text>
+      <rect x="710" y="155" width="150" height="40" rx="7" fill="#F4ECF9" stroke="#c4a8e8"/><text x="785" y="172" text-anchor="middle" fill="#6b21a8" font-size="10" font-weight="600">RemediationRecord</text><text x="785" y="186" text-anchor="middle" fill="#555" font-size="8.5">REM-xxxxxx</text>
+      <rect x="710" y="205" width="150" height="40" rx="7" fill="#F4ECF9" stroke="#c4a8e8"/><text x="785" y="222" text-anchor="middle" fill="#6b21a8" font-size="10" font-weight="600">IncidentRecord</text><text x="785" y="236" text-anchor="middle" fill="#555" font-size="8.5">INC-xxxxxx</text>
+      <rect x="710" y="255" width="150" height="40" rx="7" fill="#F4ECF9" stroke="#c4a8e8"/><text x="785" y="272" text-anchor="middle" fill="#6b21a8" font-size="10" font-weight="600">VendorExitPlan</text><text x="785" y="286" text-anchor="middle" fill="#555" font-size="8.5">readiness score</text>
+      <!-- relations -->
+      <g stroke="#2C6E5A" stroke-width="1.5" marker-end="url(#er)" fill="none">
+        <line x1="450" y1="66" x2="450" y2="110"/>
+        <line x1="450" y1="154" x2="450" y2="195"/>
+        <path d="M370,140 C280,140 200,125 192,125"/>
+        <path d="M370,150 C300,165 210,175 192,175"/>
+        <path d="M450,66 C300,80 200,200 192,222"/>
+        <path d="M450,66 C300,90 200,270 192,275"/>
+        <path d="M530,140 C620,140 700,125 708,125"/>
+        <path d="M530,205 C640,210 700,222 708,222"/>
+        <path d="M450,239 C600,250 660,180 708,175"/>
+        <path d="M450,66 C620,90 700,270 708,275"/>
+      </g>
+      <text x="240" y="14" fill="#5a6472" font-size="9">1 vendor → N engagements → N assessments → downstream records (all FK-linked)</text>
+    </svg>
+    <figcaption>VendorRecord is the hub. Criticality and risk bands aggregate worst-of across all engagements. Assessment records are immutable point-in-time snapshots.</figcaption>
+  </div>
+
+  <h3>4.2 Identifier scheme</h3>
+  <table class="t">
+    <tr><th>Prefix</th><th>Entity</th><th>Prefix</th><th>Entity</th></tr>
+    <tr><td><code>VEN-</code></td><td>Vendor</td><td><code>FND-</code></td><td>Finding</td></tr>
+    <tr><td><code>ENG-</code></td><td>Engagement</td><td><code>REM-</code></td><td>Remediation</td></tr>
+    <tr><td><code>ASM-</code></td><td>Assessment</td><td><code>INC-</code></td><td>Incident</td></tr>
+    <tr><td><code>CTR-</code></td><td>Contract</td><td><code>ISS-</code></td><td>Issue</td></tr>
+    <tr><td><code>ART-</code></td><td>Artefact / certificate</td><td><code>F4P-</code></td><td>Fourth party</td></tr>
+  </table>
+  <p>IDs are minted by a single <code>next_id(s, entity)</code> function backed by an <code>id_counters</code> table. Human-readable, non-sequential-looking, and safe to expose in URLs and audit logs.</p>
+
+  <h3>4.3 Repository layout</h3>
+  <table class="t">
+    <tr><th>Path</th><th>Contents</th></tr>
+    <tr><td><code>app/bro_app.py</code></td><td>FastAPI factory <code>create_app(db_url)</code>; all 339 endpoints; auth, RBAC, audit helpers</td></tr>
+    <tr><td><code>app/web.py</code></td><td>SPA HTML shell + static serving; fixed top bar with independently-scrolling sidebar and main panes (viewport-locked app container, overflow-contained shell)</td></tr>
+    <tr><td><code>app/static/app.js</code></td><td>The single-page app — 23 views, all API calls</td></tr>
+    <tr><td><code>app/agents/</code></td><td>llm_config, adapters, provider, langgraph_flow, agent_engine — the AI layer</td></tr>
+    <tr><td><code>app/features/</code></td><td>50 domain modules — services, models, security, governance</td></tr>
+    <tr><td><code>migrations/versions/</code></td><td>Alembic chain (6 revisions; root <code>edf300a37e18</code>, head <code>f3c0b3726465</code>)</td></tr>
+    <tr><td><code>tests/</code></td><td>58 test suites, 480 assertions, run via pytest in two batches</td></tr>
+    <tr><td><code>VERSION · CHANGELOG.md · release.sh</code></td><td>Version-discipline tooling; CI gate enforces three-way agreement</td></tr>
+  </table>
+  <div class="callout warn"><span class="i">&#9888;</span><div><strong>Monolith trade-off</strong><code>bro_app.py</code> is 6,673 lines / 339 endpoints in one file — a deliberate founder-velocity choice, kept safe by the 480-test suite. The planned remediation is an <code>APIRouter</code> split per domain (one release of effort).</div></div>
+</div>
+
+
+<div class="section page-break" id="services">
+<div class="kicker">SECTION 06</div>
+<h2>Service module catalogue</h2>
+<p class="lede">50 feature modules under app/features/ plus the agents package. Each is a focused service; master_service and registry_service are the orchestration hubs that compose them into the assessment and automation chains.</p>
+<table class="t">
+<tr><th>Module</th><th>Responsibility</th></tr>
+<tr><td><code>master_service</code></td><td>Assessment orchestration; the 11-write atomic auto-record chain on ProAssess registration</td></tr>
+<tr><td><code>registry_service</code></td><td>CRUD + prefixed-ID minting; finding/remediation/issue automation</td></tr>
+<tr><td><code>scoring</code></td><td>Deterministic domain-weighted inherent/residual scoring; criticality formula</td></tr>
+<tr><td><code>fdd</code> (Vera)</td><td>Financial due diligence — 17 ratios + Altman Z′; GREEN/AMBER/RED banding</td></tr>
+<tr><td><code>sanctions</code></td><td>OFAC/UN/EU/OFSI screening with name normalisation + fuzzy match</td></tr>
+<tr><td><code>monitoring</code></td><td>Portfolio sweep: signals, watchlist, cert expiry, overdue findings</td></tr>
+<tr><td><code>exit_planning</code> (Viny)</td><td>Stressed-exit plan drafting + readiness scoring (CMORG/DORA windows)</td></tr>
+<tr><td><code>documents</code></td><td>base64 blob store; magic-byte validation; certificate expiry extraction</td></tr>
+<tr><td><code>security</code></td><td>Fernet encryption, rate-limit, lockout, upload validation, <code>log_json</code></td></tr>
+<tr><td><code>ai_ledger</code> / <code>ai_json</code></td><td>Metadata-only AI call ledger; strict JSON parse + injection wrap</td></tr>
+<tr><td><code>notifications</code></td><td>24-type catalogue (off by default); unconditional notable-event path</td></tr>
+<tr><td><code>config_store</code></td><td>system_config key-value store (AI keys, prompts, schedules, methodology)</td></tr>
+<tr><td><code>prompts</code></td><td>31-prompt editable registry (incl. <code>management_chat</code>)</td></tr>
+<tr><td><code>+ 37 more</code></td><td>reputation, performance, oss_register, pestle, methodology, email_intake, webhooks, fourth_party, regulations, integrity, i18n, draftfill, …</td></tr>
+</table>
+</div>
+
+
+<div class="section page-break" id="infra">
+  <div class="section-head">
+    <div class="section-kicker">SECTION 07</div>
+    <h2>Infrastructure &amp; deployment</h2>
+    <p class="lede">Brata deploys as a single Render web service with push-to-deploy from GitHub. The runtime is deliberately minimal: one process, one database, zero required environment variables for a working instance. The architecture scales by configuration, not rewrite.</p>
+  </div>
+
+  <h3>5.1 Deployment topology</h3>
+  <div class="diagram-wrap avoid-break">
+    <div class="diagram-title">Figure 7 — Deployment topology (current &amp; scale path)</div>
+    <svg viewBox="0 0 900 340" xmlns="http://www.w3.org/2000/svg" font-family="Inter,sans-serif">
+      <defs><marker id="i1" markerWidth="9" markerHeight="9" refX="7" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 Z" fill="#2C6E5A"/></marker></defs>
+      <!-- dev -->
+      <rect x="20" y="30" width="150" height="46" rx="8" fill="#14302A"/><text x="95" y="50" text-anchor="middle" fill="#fff" font-size="11" font-weight="700">GitHub</text><text x="95" y="65" text-anchor="middle" fill="#E8C778" font-size="9">brata-platform/brata</text>
+      <line x1="170" y1="53" x2="220" y2="53" stroke="#2C6E5A" stroke-width="1.5" marker-end="url(#i1)"/>
+      <text x="195" y="46" text-anchor="middle" fill="#5a6472" font-size="8.5">push</text>
+      <!-- render build -->
+      <rect x="225" y="30" width="160" height="46" rx="8" fill="#E8F5EE" stroke="#9dcdb8"/><text x="305" y="50" text-anchor="middle" fill="#0e5c40" font-size="11" font-weight="700">Render build</text><text x="305" y="65" text-anchor="middle" fill="#333" font-size="8.5">pip install · CI gate</text>
+      <line x1="385" y1="53" x2="435" y2="53" stroke="#2C6E5A" stroke-width="1.5" marker-end="url(#i1)"/>
+      <!-- web service -->
+      <rect x="440" y="22" width="200" height="62" rx="9" fill="#1A4D3C"/><text x="540" y="44" text-anchor="middle" fill="#fff" font-size="12" font-weight="700">Web service</text><text x="540" y="60" text-anchor="middle" fill="#E8C778" font-size="9">uvicorn · FastAPI</text><text x="540" y="74" text-anchor="middle" fill="#cde" font-size="8.5">/healthz · /readyz probes</text>
+      <!-- DB -->
+      <ellipse cx="730" cy="53" rx="80" ry="32" fill="#FBF4E4" stroke="#e8c07a"/><text x="730" y="49" text-anchor="middle" fill="#7a5015" font-size="11" font-weight="700">Database</text><text x="730" y="64" text-anchor="middle" fill="#7a5015" font-size="8.5">SQLite → Postgres</text>
+      <line x1="640" y1="53" x2="648" y2="53" stroke="#2C6E5A" stroke-width="1.5" marker-end="url(#i1)"/>
+
+      <!-- scheduler -->
+      <rect x="440" y="105" width="200" height="40" rx="8" fill="#F4ECF9" stroke="#c4a8e8"/><text x="540" y="122" text-anchor="middle" fill="#6b21a8" font-size="10" font-weight="600">Monitoring scheduler</text><text x="540" y="136" text-anchor="middle" fill="#555" font-size="8.5">daemon thread / Render Cron</text>
+      <line x1="540" y1="84" x2="540" y2="105" stroke="#6b21a8" stroke-width="1.3" stroke-dasharray="3 3"/>
+
+      <!-- external -->
+      <rect x="700" y="105" width="180" height="40" rx="8" fill="#EEF1FB" stroke="#b3c2f0"/><text x="790" y="122" text-anchor="middle" fill="#2d4ab3" font-size="10" font-weight="600">LLM providers</text><text x="790" y="136" text-anchor="middle" fill="#555" font-size="8.5">Claude / OpenAI / … (egress)</text>
+      <line x1="640" y1="125" x2="698" y2="125" stroke="#2C6E5A" stroke-width="1.3" marker-end="url(#i1)"/>
+
+      <!-- scale path band -->
+      <rect x="20" y="185" width="860" height="130" rx="10" fill="#F7F5F0" stroke="#E5DFD0"/>
+      <text x="450" y="206" text-anchor="middle" fill="#14302A" font-size="11" font-weight="700">SCALE PATH — configuration, not rewrite</text>
+      <rect x="40" y="220" width="195" height="80" rx="8" fill="#fff" stroke="#9dcdb8"/><text x="137" y="240" text-anchor="middle" fill="#0e5c40" font-size="10" font-weight="700">Pilot</text><text x="137" y="258" text-anchor="middle" fill="#444" font-size="8.5">1 service + SQLite</text><text x="137" y="272" text-anchor="middle" fill="#444" font-size="8.5">persistent disk</text><text x="137" y="286" text-anchor="middle" fill="#888" font-size="8">~$50/mo</text>
+      <rect x="245" y="220" width="195" height="80" rx="8" fill="#fff" stroke="#9dcdb8"/><text x="342" y="240" text-anchor="middle" fill="#0e5c40" font-size="10" font-weight="700">Early SaaS</text><text x="342" y="258" text-anchor="middle" fill="#444" font-size="8.5">+ managed Postgres</text><text x="342" y="272" text-anchor="middle" fill="#444" font-size="8.5">DATABASE_URL only</text><text x="342" y="286" text-anchor="middle" fill="#888" font-size="8">~$150–400/mo</text>
+      <rect x="450" y="220" width="195" height="80" rx="8" fill="#fff" stroke="#e8c07a"/><text x="547" y="240" text-anchor="middle" fill="#8a5a1a" font-size="10" font-weight="700">Growth</text><text x="547" y="258" text-anchor="middle" fill="#444" font-size="8.5">2+ workers + Redis</text><text x="547" y="272" text-anchor="middle" fill="#444" font-size="8.5">Celery for sweeps</text><text x="547" y="286" text-anchor="middle" fill="#888" font-size="8">~$600–1,500/mo</text>
+      <rect x="655" y="220" width="205" height="80" rx="8" fill="#fff" stroke="#e0a0a8"/><text x="757" y="240" text-anchor="middle" fill="#8A2E3B" font-size="10" font-weight="700">Enterprise</text><text x="757" y="258" text-anchor="middle" fill="#444" font-size="8.5">ECS/K8s + Aurora</text><text x="757" y="272" text-anchor="middle" fill="#444" font-size="8.5">per-tenant DB option</text><text x="757" y="286" text-anchor="middle" fill="#888" font-size="8">$3,000+/mo</text>
+    </svg>
+    <figcaption>The same codebase serves all four tiers. Postgres is a single env var; multi-worker needs only Redis-backed rate-limit state; per-tenant DB is already supported by the <code>create_app(db_url)</code> factory.</figcaption>
+  </div>
+
+  <h3>5.2 Environments &amp; configuration</h3>
+  <table class="t">
+    <tr><th>Variable</th><th>Purpose</th><th>Dev default</th><th>Production</th></tr>
+    <tr><td><code>BRO_ENV</code></td><td>Environment mode</td><td><code>dev</code></td><td><code>production</code> (enables fail-closed guards)</td></tr>
+    <tr><td><code>BRO_SECRET_KEY</code></td><td>JWT signing + Fernet key derivation</td><td>auto-generated</td><td><strong>required</strong> — long random string</td></tr>
+    <tr><td><code>BRO_ADMIN_PASSWORD</code></td><td>Platform admin seed password</td><td><code>admin</code> (with warning)</td><td><strong>required</strong> — &ge; 12 chars</td></tr>
+    <tr><td><code>DATABASE_URL</code> / <code>BRO_DB_URL</code></td><td>Database connection</td><td>SQLite file</td><td>Postgres URL (no code change)</td></tr>
+    <tr><td><code>BRO_DB_AUTO_CREATE</code></td><td>Auto-create schema on boot</td><td><code>1</code></td><td><code>0</code> — manage via Alembic</td></tr>
+    <tr><td><code>BRO_LLM_PROVIDER</code></td><td>Pin AI provider</td><td>unset (auto-resolve)</td><td>optional explicit pin</td></tr>
+    <tr><td><code>BRO_SCHEDULER_ENABLED</code></td><td>In-process monitoring sweeps</td><td><code>0</code></td><td><code>1</code> or external Render Cron</td></tr>
+  </table>
+
+  <div class="callout crit"><span class="i">&#9888;</span><div><strong>Data persistence on Render</strong>Without a persistent disk, SQLite resets on every redeploy. Production must either attach a persistent disk or set <code>DATABASE_URL</code> to managed Postgres before handling live data. The Postgres switch requires only the env var.</div></div>
+
+  <h3>5.3 Health &amp; readiness</h3>
+  <p><code>GET /healthz</code> returns platform version with no auth (Render health check). <code>GET /readyz</code> executes <code>SELECT 1</code> to confirm DB connectivity before the load balancer routes traffic. Both are sub-2ms at current scale.</p>
+</div>
+
+
+<div class="section page-break" id="security">
+  <div class="section-head">
+    <div class="section-kicker">SECTION 08</div>
+    <h2>Security &amp; controls</h2>
+    <p class="lede">Security is layered and structural. Seven enforced layers protect the platform; AI governance is enforced at the single gateway; and an immutable audit trail makes every action reconstructable.</p>
+  </div>
+
+  <h3>6.1 Seven-layer security model</h3>
+  <div class="diagram-wrap avoid-break">
+    <div class="diagram-title">Figure 8 — Defence-in-depth layers (request inbound &#8594; data)</div>
+    <svg viewBox="0 0 900 250" xmlns="http://www.w3.org/2000/svg" font-family="Inter,sans-serif">
+<rect x="18" y="40" width="116" height="150" rx="8" fill="#EEF1FB" stroke="#2d4ab3" stroke-opacity="0.4"/><circle cx="76.0" cy="62" r="12" fill="#2d4ab3"/><text x="76.0" y="66" text-anchor="middle" fill="#fff" font-size="11" font-weight="700">1</text><text x="76.0" y="92" text-anchor="middle" fill="#2d4ab3" font-size="9.5" font-weight="700">Secrets</text><text x="76.0" y="104" text-anchor="middle" fill="#2d4ab3" font-size="9.5" font-weight="700">at rest</text><text x="76.0" y="124" text-anchor="middle" fill="#444" font-size="7.8">Fernet AES-256</text><text x="76.0" y="135" text-anchor="middle" fill="#444" font-size="7.8">for AI keys</text><rect x="142" y="40" width="116" height="150" rx="8" fill="#E8F5EE" stroke="#0e5c40" stroke-opacity="0.4"/><circle cx="200.0" cy="62" r="12" fill="#0e5c40"/><text x="200.0" y="66" text-anchor="middle" fill="#fff" font-size="11" font-weight="700">2</text><text x="200.0" y="92" text-anchor="middle" fill="#0e5c40" font-size="9.5" font-weight="700">Boot</text><text x="200.0" y="104" text-anchor="middle" fill="#0e5c40" font-size="9.5" font-weight="700">guards</text><text x="200.0" y="124" text-anchor="middle" fill="#444" font-size="7.8">prod requires</text><text x="200.0" y="135" text-anchor="middle" fill="#444" font-size="7.8">SECRET_KEY +</text><text x="200.0" y="146" text-anchor="middle" fill="#444" font-size="7.8">admin pw</text><rect x="266" y="40" width="116" height="150" rx="8" fill="#F4ECF9" stroke="#6b21a8" stroke-opacity="0.4"/><circle cx="324.0" cy="62" r="12" fill="#6b21a8"/><text x="324.0" y="66" text-anchor="middle" fill="#fff" font-size="11" font-weight="700">3</text><text x="324.0" y="92" text-anchor="middle" fill="#6b21a8" font-size="9.5" font-weight="700">HTTP</text><text x="324.0" y="104" text-anchor="middle" fill="#6b21a8" font-size="9.5" font-weight="700">headers</text><text x="324.0" y="124" text-anchor="middle" fill="#444" font-size="7.8">X-Frame DENY ·</text><text x="324.0" y="135" text-anchor="middle" fill="#444" font-size="7.8">nosniff · CSP ·</text><text x="324.0" y="146" text-anchor="middle" fill="#444" font-size="7.8">HSTS</text><rect x="390" y="40" width="116" height="150" rx="8" fill="#FDF6EC" stroke="#8a5a1a" stroke-opacity="0.4"/><circle cx="448.0" cy="62" r="12" fill="#8a5a1a"/><text x="448.0" y="66" text-anchor="middle" fill="#fff" font-size="11" font-weight="700">4</text><text x="448.0" y="92" text-anchor="middle" fill="#8a5a1a" font-size="9.5" font-weight="700">Rate</text><text x="448.0" y="104" text-anchor="middle" fill="#8a5a1a" font-size="9.5" font-weight="700">+ lockout</text><text x="448.0" y="124" text-anchor="middle" fill="#444" font-size="7.8">30/60s/IP ·</text><text x="448.0" y="135" text-anchor="middle" fill="#444" font-size="7.8">6-fail lockout,</text><text x="448.0" y="146" text-anchor="middle" fill="#444" font-size="7.8">backoff</text><rect x="514" y="40" width="116" height="150" rx="8" fill="#EEF3FA" stroke="#1F3A52" stroke-opacity="0.4"/><circle cx="572.0" cy="62" r="12" fill="#1F3A52"/><text x="572.0" y="66" text-anchor="middle" fill="#fff" font-size="11" font-weight="700">5</text><text x="572.0" y="92" text-anchor="middle" fill="#1F3A52" font-size="9.5" font-weight="700">Upload</text><text x="572.0" y="104" text-anchor="middle" fill="#1F3A52" font-size="9.5" font-weight="700">validation</text><text x="572.0" y="124" text-anchor="middle" fill="#444" font-size="7.8">ext allowlist +</text><text x="572.0" y="135" text-anchor="middle" fill="#444" font-size="7.8">magic-byte sniff</text><rect x="638" y="40" width="116" height="150" rx="8" fill="#FDF0F1" stroke="#8A2E3B" stroke-opacity="0.4"/><circle cx="696.0" cy="62" r="12" fill="#8A2E3B"/><text x="696.0" y="66" text-anchor="middle" fill="#fff" font-size="11" font-weight="700">6</text><text x="696.0" y="92" text-anchor="middle" fill="#8A2E3B" font-size="9.5" font-weight="700">Injection</text><text x="696.0" y="104" text-anchor="middle" fill="#8A2E3B" font-size="9.5" font-weight="700">defence</text><text x="696.0" y="124" text-anchor="middle" fill="#444" font-size="7.8"></text><text x="696.0" y="135" text-anchor="middle" fill="#444" font-size="7.8">untrusted_document</text><text x="696.0" y="146" text-anchor="middle" fill="#444" font-size="7.8">wrap, no bypass</text><rect x="762" y="40" width="116" height="150" rx="8" fill="#FBF4E4" stroke="#7a5015" stroke-opacity="0.4"/><circle cx="820.0" cy="62" r="12" fill="#7a5015"/><text x="820.0" y="66" text-anchor="middle" fill="#fff" font-size="11" font-weight="700">7</text><text x="820.0" y="92" text-anchor="middle" fill="#7a5015" font-size="9.5" font-weight="700">RBAC</text><text x="820.0" y="104" text-anchor="middle" fill="#7a5015" font-size="9.5" font-weight="700">gates</text><text x="820.0" y="124" text-anchor="middle" fill="#444" font-size="7.8"></text><text x="820.0" y="135" text-anchor="middle" fill="#444" font-size="7.8">Depends(require())</text><text x="820.0" y="146" text-anchor="middle" fill="#444" font-size="7.8">on every endpoint</text>
+      <text x="450" y="24" text-anchor="middle" fill="#14302A" font-size="10" font-weight="700">EVERY LAYER ENFORCED IN CODE — all status: LIVE</text>
+      <text x="450" y="214" text-anchor="middle" fill="#5a6472" font-size="9">A request must pass all seven before any row is read or written</text>
+    </svg>
+    <figcaption>All seven layers are live in v4.2.0. Layer 6 (injection defence) is structural &mdash; enforced at <code>wrap_untrusted()</code>, bypassable by no call-site.</figcaption>
+  </div>
+
+  <h3>6.2 AI governance controls</h3>
+  <table class="t">
+    <tr><th>Control</th><th>Mechanism</th><th>Enforcement point</th></tr>
+    <tr><td>Prompt governance</td><td>31-prompt editable registry; changes audited; eval harness gate</td><td><code>prompts.py</code> + <code>prompt_evals.py</code></td></tr>
+    <tr><td>Budget caps</td><td>Daily call cap checked before model call; 0-cap blocks all</td><td>gateway pre-call</td></tr>
+    <tr><td>Injection isolation</td><td>Third-party text wrapped + security preamble</td><td><code>ai_json.wrap_untrusted()</code></td></tr>
+    <tr><td>Output validation</td><td>strict JSON parse → 1 repair retry → deterministic fallback</td><td><code>parse_json_strict()</code></td></tr>
+    <tr><td>PII redaction</td><td>email/card/NINO/phone stripped from error strings</td><td>ledger write</td></tr>
+    <tr><td>Advisory-only</td><td>AI findings created as Draft; human sign-off required</td><td>registration flow</td></tr>
+    <tr><td>Metadata-only ledger</td><td>No prompt text or response content ever stored</td><td><code>ai_call_log</code></td></tr>
+  </table>
+
+  <h3>6.3 Audit trail &amp; evidentiary record</h3>
+  <p>Every state-changing action writes an immutable, hash-chained audit record: actor, UTC timestamp, action type, and a JSON payload of changed values. The audit log cannot be edited or deleted through any platform interface. Together with immutable assessment snapshots, the document store with full provenance, the AI ledger, and the finding lifecycle history, it constitutes the documented TPRM record required by <strong>DORA Article 28</strong>, <strong>FCA SYSC 8</strong>, and <strong>PRA SS2/21</strong> &mdash; designed to answer, at any point in time: <em>&ldquo;what did you know about this vendor, and when?&rdquo;</em></p>
+
+  <div class="callout good"><span class="i">&#10003;</span><div><strong>Regulatory alignment</strong>The control set maps directly to the operational-resilience and outsourcing expectations of DORA, the PRA, the FCA, and UK GDPR Article 28 &mdash; the platform is built to produce regulatory evidence as a by-product of normal operation.</div></div>
+</div>
+
+
+<div class="section page-break" id="users">
+  <div class="section-head">
+    <div class="section-kicker">SECTION 09</div>
+    <h2>User &amp; access model</h2>
+    <p class="lede">Six system roles spanning the full TPRM operating model, each mapped to a precise permission set. Authentication is JWT-based with production fail-closed guards; authorisation is enforced per-endpoint.</p>
+  </div>
+
+  <h3>7.1 Roles</h3>
+  <table class="t">
+    <tr><th>Role</th><th>Key</th><th>Primary responsibilities</th><th>Key restrictions</th></tr>
+    <tr><td><strong>Administrator</strong></td><td><code>admin</code></td><td>All permissions: users, roles, AI keys, prompts, methodology, system config</td><td>None</td></tr>
+    <tr><td><strong>Assessor (VRM)</strong></td><td><code>vrm</code></td><td>Runs ProAssess/BroAssess; creates findings, incidents, remediations; signs off</td><td>Cannot create/edit vendors or configure system</td></tr>
+    <tr><td><strong>Buyer / Business Lead</strong></td><td><code>buyer</code></td><td>Creates vendors &amp; engagements; provides context; submits criticality inputs</td><td>Cannot run full ProAssess or manage incidents</td></tr>
+    <tr><td><strong>Controller</strong></td><td><code>controller</code></td><td>Reviews/approves assessments; manages incidents &amp; findings; exports audit</td><td>Cannot configure system or run ProAssess</td></tr>
+    <tr><td><strong>Executive</strong></td><td><code>exec</code></td><td>Read-only across all data, dashboards, board pack</td><td>All create/edit/approve actions</td></tr>
+    <tr><td><strong>Vendor</strong></td><td><code>vendor</code></td><td>Portal only: view assigned findings, submit DDQ responses</td><td>All platform data outside their portal</td></tr>
+  </table>
+
+  <h3>7.2 Role &times; capability matrix</h3>
+  <div class="diagram-wrap avoid-break">
+    <div class="diagram-title">Figure 9 — Role / capability matrix</div>
+    <svg viewBox="0 0 900 250" xmlns="http://www.w3.org/2000/svg" font-family="Inter,sans-serif">
+<rect x="173" y="10" width="112" height="20" rx="4" fill="#14302A"/><text x="229.0" y="24" text-anchor="middle" fill="#fff" font-size="9.5" font-weight="700">Admin</text><rect x="291" y="10" width="112" height="20" rx="4" fill="#1A4D3C"/><text x="347.0" y="24" text-anchor="middle" fill="#fff" font-size="9.5" font-weight="700">Assessor</text><rect x="409" y="10" width="112" height="20" rx="4" fill="#2C6E5A"/><text x="465.0" y="24" text-anchor="middle" fill="#fff" font-size="9.5" font-weight="700">Buyer</text><rect x="527" y="10" width="112" height="20" rx="4" fill="#2d4ab3"/><text x="583.0" y="24" text-anchor="middle" fill="#fff" font-size="9.5" font-weight="700">Controller</text><rect x="645" y="10" width="112" height="20" rx="4" fill="#6b21a8"/><text x="701.0" y="24" text-anchor="middle" fill="#fff" font-size="9.5" font-weight="700">Exec</text><rect x="763" y="10" width="112" height="20" rx="4" fill="#8a5a1a"/><text x="819.0" y="24" text-anchor="middle" fill="#fff" font-size="9.5" font-weight="700">Vendor</text><text x="14" y="52" fill="#1a1a1a" font-size="9.5" font-weight="600">Create vendor</text><rect x="10" y="38" width="155" height="22" rx="4" fill="#F7F5F0"/><text x="14" y="53" fill="#1a1a1a" font-size="9.5" font-weight="600">Create vendor</text><circle cx="229.0" cy="49" r="8" fill="#1A4D3C"/><text x="229.0" y="52.5" text-anchor="middle" fill="#fff" font-size="10" font-weight="700">&#10003;</text><circle cx="347.0" cy="49" r="8" fill="#fff" stroke="#d8d2c4"/><text x="347.0" y="52.5" text-anchor="middle" fill="#bbb" font-size="9">&#8211;</text><circle cx="465.0" cy="49" r="8" fill="#1A4D3C"/><text x="465.0" y="52.5" text-anchor="middle" fill="#fff" font-size="10" font-weight="700">&#10003;</text><circle cx="583.0" cy="49" r="8" fill="#fff" stroke="#d8d2c4"/><text x="583.0" y="52.5" text-anchor="middle" fill="#bbb" font-size="9">&#8211;</text><circle cx="701.0" cy="49" r="8" fill="#fff" stroke="#d8d2c4"/><text x="701.0" y="52.5" text-anchor="middle" fill="#bbb" font-size="9">&#8211;</text><circle cx="819.0" cy="49" r="8" fill="#fff" stroke="#d8d2c4"/><text x="819.0" y="52.5" text-anchor="middle" fill="#bbb" font-size="9">&#8211;</text><text x="14" y="80" fill="#1a1a1a" font-size="9.5" font-weight="600">Run ProAssess</text><rect x="10" y="66" width="155" height="22" rx="4" fill="#F7F5F0"/><text x="14" y="81" fill="#1a1a1a" font-size="9.5" font-weight="600">Run ProAssess</text><circle cx="229.0" cy="77" r="8" fill="#1A4D3C"/><text x="229.0" y="80.5" text-anchor="middle" fill="#fff" font-size="10" font-weight="700">&#10003;</text><circle cx="347.0" cy="77" r="8" fill="#1A4D3C"/><text x="347.0" y="80.5" text-anchor="middle" fill="#fff" font-size="10" font-weight="700">&#10003;</text><circle cx="465.0" cy="77" r="8" fill="#fff" stroke="#d8d2c4"/><text x="465.0" y="80.5" text-anchor="middle" fill="#bbb" font-size="9">&#8211;</text><circle cx="583.0" cy="77" r="8" fill="#fff" stroke="#d8d2c4"/><text x="583.0" y="80.5" text-anchor="middle" fill="#bbb" font-size="9">&#8211;</text><circle cx="701.0" cy="77" r="8" fill="#fff" stroke="#d8d2c4"/><text x="701.0" y="80.5" text-anchor="middle" fill="#bbb" font-size="9">&#8211;</text><circle cx="819.0" cy="77" r="8" fill="#fff" stroke="#d8d2c4"/><text x="819.0" y="80.5" text-anchor="middle" fill="#bbb" font-size="9">&#8211;</text><text x="14" y="108" fill="#1a1a1a" font-size="9.5" font-weight="600">Create finding</text><rect x="10" y="94" width="155" height="22" rx="4" fill="#F7F5F0"/><text x="14" y="109" fill="#1a1a1a" font-size="9.5" font-weight="600">Create finding</text><circle cx="229.0" cy="105" r="8" fill="#1A4D3C"/><text x="229.0" y="108.5" text-anchor="middle" fill="#fff" font-size="10" font-weight="700">&#10003;</text><circle cx="347.0" cy="105" r="8" fill="#1A4D3C"/><text x="347.0" y="108.5" text-anchor="middle" fill="#fff" font-size="10" font-weight="700">&#10003;</text><circle cx="465.0" cy="105" r="8" fill="#fff" stroke="#d8d2c4"/><text x="465.0" y="108.5" text-anchor="middle" fill="#bbb" font-size="9">&#8211;</text><circle cx="583.0" cy="105" r="8" fill="#1A4D3C"/><text x="583.0" y="108.5" text-anchor="middle" fill="#fff" font-size="10" font-weight="700">&#10003;</text><circle cx="701.0" cy="105" r="8" fill="#fff" stroke="#d8d2c4"/><text x="701.0" y="108.5" text-anchor="middle" fill="#bbb" font-size="9">&#8211;</text><circle cx="819.0" cy="105" r="8" fill="#fff" stroke="#d8d2c4"/><text x="819.0" y="108.5" text-anchor="middle" fill="#bbb" font-size="9">&#8211;</text><text x="14" y="136" fill="#1a1a1a" font-size="9.5" font-weight="600">Manage incident</text><rect x="10" y="122" width="155" height="22" rx="4" fill="#F7F5F0"/><text x="14" y="137" fill="#1a1a1a" font-size="9.5" font-weight="600">Manage incident</text><circle cx="229.0" cy="133" r="8" fill="#1A4D3C"/><text x="229.0" y="136.5" text-anchor="middle" fill="#fff" font-size="10" font-weight="700">&#10003;</text><circle cx="347.0" cy="133" r="8" fill="#1A4D3C"/><text x="347.0" y="136.5" text-anchor="middle" fill="#fff" font-size="10" font-weight="700">&#10003;</text><circle cx="465.0" cy="133" r="8" fill="#fff" stroke="#d8d2c4"/><text x="465.0" y="136.5" text-anchor="middle" fill="#bbb" font-size="9">&#8211;</text><circle cx="583.0" cy="133" r="8" fill="#1A4D3C"/><text x="583.0" y="136.5" text-anchor="middle" fill="#fff" font-size="10" font-weight="700">&#10003;</text><circle cx="701.0" cy="133" r="8" fill="#fff" stroke="#d8d2c4"/><text x="701.0" y="136.5" text-anchor="middle" fill="#bbb" font-size="9">&#8211;</text><circle cx="819.0" cy="133" r="8" fill="#fff" stroke="#d8d2c4"/><text x="819.0" y="136.5" text-anchor="middle" fill="#bbb" font-size="9">&#8211;</text><text x="14" y="164" fill="#1a1a1a" font-size="9.5" font-weight="600">Approve assessment</text><rect x="10" y="150" width="155" height="22" rx="4" fill="#F7F5F0"/><text x="14" y="165" fill="#1a1a1a" font-size="9.5" font-weight="600">Approve assessment</text><circle cx="229.0" cy="161" r="8" fill="#1A4D3C"/><text x="229.0" y="164.5" text-anchor="middle" fill="#fff" font-size="10" font-weight="700">&#10003;</text><circle cx="347.0" cy="161" r="8" fill="#fff" stroke="#d8d2c4"/><text x="347.0" y="164.5" text-anchor="middle" fill="#bbb" font-size="9">&#8211;</text><circle cx="465.0" cy="161" r="8" fill="#fff" stroke="#d8d2c4"/><text x="465.0" y="164.5" text-anchor="middle" fill="#bbb" font-size="9">&#8211;</text><circle cx="583.0" cy="161" r="8" fill="#1A4D3C"/><text x="583.0" y="164.5" text-anchor="middle" fill="#fff" font-size="10" font-weight="700">&#10003;</text><circle cx="701.0" cy="161" r="8" fill="#fff" stroke="#d8d2c4"/><text x="701.0" y="164.5" text-anchor="middle" fill="#bbb" font-size="9">&#8211;</text><circle cx="819.0" cy="161" r="8" fill="#fff" stroke="#d8d2c4"/><text x="819.0" y="164.5" text-anchor="middle" fill="#bbb" font-size="9">&#8211;</text><text x="14" y="192" fill="#1a1a1a" font-size="9.5" font-weight="600">Configure system</text><rect x="10" y="178" width="155" height="22" rx="4" fill="#F7F5F0"/><text x="14" y="193" fill="#1a1a1a" font-size="9.5" font-weight="600">Configure system</text><circle cx="229.0" cy="189" r="8" fill="#1A4D3C"/><text x="229.0" y="192.5" text-anchor="middle" fill="#fff" font-size="10" font-weight="700">&#10003;</text><circle cx="347.0" cy="189" r="8" fill="#fff" stroke="#d8d2c4"/><text x="347.0" y="192.5" text-anchor="middle" fill="#bbb" font-size="9">&#8211;</text><circle cx="465.0" cy="189" r="8" fill="#fff" stroke="#d8d2c4"/><text x="465.0" y="192.5" text-anchor="middle" fill="#bbb" font-size="9">&#8211;</text><circle cx="583.0" cy="189" r="8" fill="#fff" stroke="#d8d2c4"/><text x="583.0" y="192.5" text-anchor="middle" fill="#bbb" font-size="9">&#8211;</text><circle cx="701.0" cy="189" r="8" fill="#fff" stroke="#d8d2c4"/><text x="701.0" y="192.5" text-anchor="middle" fill="#bbb" font-size="9">&#8211;</text><circle cx="819.0" cy="189" r="8" fill="#fff" stroke="#d8d2c4"/><text x="819.0" y="192.5" text-anchor="middle" fill="#bbb" font-size="9">&#8211;</text><text x="14" y="220" fill="#1a1a1a" font-size="9.5" font-weight="600">View all data</text><rect x="10" y="206" width="155" height="22" rx="4" fill="#F7F5F0"/><text x="14" y="221" fill="#1a1a1a" font-size="9.5" font-weight="600">View all data</text><circle cx="229.0" cy="217" r="8" fill="#1A4D3C"/><text x="229.0" y="220.5" text-anchor="middle" fill="#fff" font-size="10" font-weight="700">&#10003;</text><circle cx="347.0" cy="217" r="8" fill="#1A4D3C"/><text x="347.0" y="220.5" text-anchor="middle" fill="#fff" font-size="10" font-weight="700">&#10003;</text><circle cx="465.0" cy="217" r="8" fill="#E8C778"/><text x="465.0" y="220.5" text-anchor="middle" fill="#7a5015" font-size="9" font-weight="700">~</text><circle cx="583.0" cy="217" r="8" fill="#1A4D3C"/><text x="583.0" y="220.5" text-anchor="middle" fill="#fff" font-size="10" font-weight="700">&#10003;</text><circle cx="701.0" cy="217" r="8" fill="#1A4D3C"/><text x="701.0" y="220.5" text-anchor="middle" fill="#fff" font-size="10" font-weight="700">&#10003;</text><circle cx="819.0" cy="217" r="8" fill="#fff" stroke="#d8d2c4"/><text x="819.0" y="220.5" text-anchor="middle" fill="#bbb" font-size="9">&#8211;</text>
+      <text x="170" y="246" fill="#5a6472" font-size="8.5">&#10003; full access &nbsp;&nbsp; ~ partial / read-only &nbsp;&nbsp; &#8211; no access</text>
+    </svg>
+    <figcaption>Permissions are checked on every endpoint via <code>Depends(require("permission.key"))</code>; a mismatch returns HTTP 403 before any data access.</figcaption>
+  </div>
+
+  <h3>7.3 Authentication &amp; session controls</h3>
+  <table class="t">
+    <tr><th>Control</th><th>Rule</th></tr>
+    <tr><td>Token</td><td>JWT Bearer, signed with <code>BRO_SECRET_KEY</code>; subject = username</td></tr>
+    <tr><td>Login rate limit</td><td>30 requests / 60s / client IP → HTTP 429</td></tr>
+    <tr><td>Account lockout</td><td>6 consecutive failures → lock; 60s &times; 2&#8319; backoff, capped 900s</td></tr>
+    <tr><td>Production trust-header</td><td>Dev <code>BRO_TRUST_HEADER</code> escape hatch unconditionally disabled in production</td></tr>
+    <tr><td>Production boot</td><td>Refuses to start without strong <code>BRO_SECRET_KEY</code> + <code>BRO_ADMIN_PASSWORD</code></td></tr>
+    <tr><td>Permission check</td><td>Per-endpoint RBAC dependency; 403 on mismatch before data access</td></tr>
+  </table>
+</div>
+
+
+<div class="section page-break" id="changes">
+<div class="kicker">SECTION 10</div>
+<h2>What changed in v4.2.1 / v4.2.2</h2>
+<p class="lede">This release line hardens reliability and performance and updates the executive AI prompt. No breaking changes; 438 functional tests green.</p>
+<table class="t">
+<tr><th>Area</th><th>Change</th><th>Version</th></tr>
+<tr><td>AI reliability <span class="chip new">P0</span></td><td>Per-call 30s timeout on all provider clients; retry with full-jitter backoff on transient errors; ordered failover across key-present providers (<code>BRO_LLM_TIMEOUT/RETRIES/FAILOVER</code>)</td><td>4.2.1</td></tr>
+<tr><td>DB concurrency <span class="chip new">P1</span></td><td>SQLite WAL + busy_timeout on every connection</td><td>4.2.1</td></tr>
+<tr><td>Search <span class="chip new">P1</span></td><td>Global search pushed to SQL (<code>ilike</code> + LIMIT) — fast at 10k+ vendors</td><td>4.2.1</td></tr>
+<tr><td>Observability <span class="chip new">P2</span></td><td>36 silent excepts now emit structured <code>log_json</code> lines</td><td>4.2.1</td></tr>
+<tr><td>Payload size <span class="chip new">P2</span></td><td><code>?slim=</code> list mode; N+1 query in vendor list eliminated</td><td>4.2.1</td></tr>
+<tr><td>Indexes <span class="chip new">P2</span></td><td>Six composite FK indexes (new Alembic revision)</td><td>4.2.1</td></tr>
+<tr><td>Architecture <span class="chip new">P2</span></td><td><code>app/routers/</code> package + extracted health router (decomposition pattern)</td><td>4.2.1</td></tr>
+<tr><td>Executive prompt</td><td><code>management_chat</code> reworked for CRO &amp; Board: headline → data insight → external events &amp; firm impact → recommended action; 5–10 sentences; visual where useful</td><td>4.2.2</td></tr>
+</table>
+
+</div>
+</div>
+<div class="section page-break" id="changes49">
+<div class="kicker">SECTION 10B</div>
+<h2>What changed in v4.6 &ndash; v4.9</h2>
+<p class="lede">Four release lines: external monitoring connectors, no-code content &amp; layout administration, the interactive entity brain map, and transport/header hardening. No breaking changes; migration chain <code>connector_suite &rarr; content_studio &rarr; layout_config</code>.</p>
+<table class="t">
+<tr><th>Area</th><th>Change</th><th>Version</th></tr>
+<tr><td>External connectors <span class="chip new">NEW</span></td><td>Connector framework + six integrations (SAP, ProcessUnity, RapidRatings, Interos, SecurityScorecard, RiskRecon); offline-safe stub mode, live HTTPS with <code>BRO_CONN_&lt;KEY&gt;_KEY</code>; signals normalised into Vendor 360 (<code>/api/v2/integrations/*</code>, 7 endpoints)</td><td>4.6.0</td></tr>
+<tr><td>Content Studio <span class="chip new">NEW</span></td><td>"Admin Change" section: DB-backed override of any catalogued UI string (1,188 strings across 17 groups) plus custom-string overrides; applied client-side by an exact-match text pass with MutationObserver; public read (<code>/api/v2/content/overrides</code>), editing gated by new <code>admin.content</code> permission; export/import; table <code>content_override</code></td><td>4.7.0&ndash;4.7.1</td></tr>
+<tr><td>Live preview</td><td>Preview mode applies buffered edits across the running app client-side before save, with revert and bulk save</td><td>4.7.2</td></tr>
+<tr><td>Layout config <span class="chip new">NEW</span></td><td>Structural nav administration: show/hide and reorder navigation items and groups; table <code>layout_setting</code>; public config read, admin-gated writes (<code>/api/v2/layout/*</code>, 6 endpoints); role-gated items excluded by design</td><td>4.8.0</td></tr>
+<tr><td>RBAC seed fix</td><td><code>rbac.seed()</code> refreshes full-access ("ALL") roles on every boot so newly introduced permissions attach to the admin role automatically</td><td>4.7.0</td></tr>
+<tr><td>Entity brain map <span class="chip new">NEW</span></td><td>Interactive canvas force-graph over the live estate (vendors, shared fourth parties, common owners, business units) with 2D/3D orbit modes, click-to-inspect detail panel, neighbour navigation, search, type filters, drag/zoom, contagion &amp; Vendor 360 deep links; data from new read-only <code>GET /api/v2/graph/network</code> (<code>vendor.view</code>)</td><td>4.9.0</td></tr>
+<tr><td>Transport efficiency <span class="chip new">P1</span></td><td>GZip middleware on responses &ge;1KB (the app bundle compresses ~75%); <code>Cache-Control: public, max-age=86400, immutable</code> on version-busted static assets</td><td>4.9.0</td></tr>
+<tr><td>Header hardening <span class="chip new">P1</span></td><td><code>Permissions-Policy</code> (camera/mic/geo/payment denied) and <code>Cross-Origin-Opener-Policy: same-origin</code> added to the existing CSP/HSTS/frame/nosniff set</td><td>4.9.0</td></tr>
+<tr><td>Cluster collapse <span class="chip new">NEW</span></td><td>Ownership clusters fold into expandable super-nodes on the brain map (member count badged; links re-route); per-cluster and estate-wide controls</td><td>4.10.0</td></tr>
+<tr><td>Concentration replay <span class="chip new">NEW</span></td><td>Time slider + replay animates how the estate and its concentration built up, dated from engagement start dates; live vendor/link counts while scrubbing; <code>since</code> + <code>timeline</code> added to <code>/graph/network</code></td><td>4.11.0</td></tr>
+<tr><td>Fluid UX layer</td><td>Motion polish (card/nav/button transitions, view fade-in), consistent field labels and gold focus rings on all form controls, <code>prefers-reduced-motion</code> respected globally</td><td>4.9.0</td></tr>
+</table>
+</div>
+
+<div class="section page-break" id="nfr">
+  <div class="section-head">
+    <div class="section-kicker">SECTION 11</div>
+    <h2>Non-functional characteristics &amp; roadmap</h2>
+    <p class="lede">Measured performance, the honest gap register from the internal code review, and the forward path &mdash; including the multi-tenancy work already designed and prototyped.</p>
+  </div>
+
+  <h3>8.1 Performance (measured, v4.2.0)</h3>
+  <div class="metrics">
+    <div class="metric"><div class="mv">63<span style="font-size:13px">ms</span></div><div class="ml">Vendor register, 322 rows (warm, worst case)</div></div>
+    <div class="metric"><div class="mv">13<span style="font-size:13px">ms</span></div><div class="ml">Global search response</div></div>
+    <div class="metric"><div class="mv">1.7<span style="font-size:13px">ms</span></div><div class="ml">/healthz probe</div></div>
+    <div class="metric"><div class="mv">&lt;20<span style="font-size:13px">ms</span></div><div class="ml">All interactive paths at current scale</div></div>
+  </div>
+
+  <h3>8.2 Gap register &amp; remediation status (v4.5.2 code review)</h3>
+  <p>The gap register from the original internal review has been worked down. Items 1&ndash;6 are <strong>remediated and verified</strong> in v4.5.2 with the evidence noted below; items 7&ndash;8 remain on the roadmap.</p>
+  <table class="t">
+    <tr><th>#</th><th>Gap</th><th>Priority</th><th>Remediation &amp; evidence</th><th>Status</th></tr>
+    <tr><td>1</td><td>No LLM call timeouts — a hung provider can stall the worker</td><td><span class="chip r">P0</span></td><td>Per-call wall-clock timeout (30&nbsp;s default), bounded retry with jitter on transient errors, ordered provider failover, and a transient-error classifier (timeout/429/5xx vs. 4xx). <em>Verified: timeout/retry config asserted; retry loop fires on a simulated transient then succeeds.</em></td><td><span class="chip g">DONE</span></td></tr>
+    <tr><td>2</td><td>SQLite without WAL — concurrent writes can lock</td><td><span class="chip o">P1</span></td><td>Connection hook sets <code>journal_mode=WAL</code>, <code>busy_timeout=5000</code>, <code>synchronous=NORMAL</code> on every SQLite connection. <em>Verified at runtime on a fresh connection.</em></td><td><span class="chip g">DONE</span></td></tr>
+    <tr><td>3</td><td>Search is Python-side LIKE — slows at 10k+ vendors</td><td><span class="chip o">P1</span></td><td>Global search and vendor search are now SQL-side <code>ilike</code> with server-side filtering, archived-row exclusion and a bounded <code>limit</code> — no full-table Python scan. <em>Verified: ilike match, archived exclusion and filters return correctly.</em></td><td><span class="chip g">DONE</span></td></tr>
+    <tr><td>4</td><td>Silent <code>except: pass</code> sites</td><td><span class="chip gold">P2</span></td><td>All application-level swallows route through <code>_obs_swallow()</code> &rarr; <code>log_json('swallowed_exception', …)</code>. The only remaining bare guards are inside the logger itself (observability must never recurse or change control flow). <em>Verified: zero silent application sites remain.</em></td><td><span class="chip g">DONE</span></td></tr>
+    <tr><td>5</td><td>List serializers over-fetch (heavy columns loaded but unused)</td><td><span class="chip gold">P2</span></td><td>Document and assessment list queries <code>defer()</code> the heavy columns (<code>data_b64</code> file content, <code>structured_json</code> payload) so they are never loaded for list views; detail endpoints still return them. app.js is already content-hash cache-busted. <em>Verified: an 83-row document list containing a 200&nbsp;KB blob serialises to ~30&nbsp;KB with no base64.</em></td><td><span class="chip g">DONE</span></td></tr>
+    <tr><td>6</td><td>Missing FK indexes on hot paths</td><td><span class="chip gold">P2</span></td><td>Composite/FK indexes shipped via Alembic (<code>g6_fk_indexes</code>) across engagement&rarr;vendor, assessment&rarr;engagement, finding&rarr;vendor/status, incident&rarr;vendor and more. <em>Verified: 41 <code>ix_*</code> indexes present after migration.</em></td><td><span class="chip g">DONE</span></td></tr>
+    <tr><td>7</td><td>Monolithic <code>bro_app.py</code></td><td><span class="chip gold">P2</span></td><td>APIRouter split per domain — planned (one release of effort), kept safe by the test suite.</td><td><span class="chip b">ROADMAP</span></td></tr>
+    <tr><td>8</td><td>No live-model evals (deterministic paths only)</td><td><span class="chip b">P3</span></td><td>5&ndash;10 canned assessments with band-level assertions per provider — planned.</td><td><span class="chip b">ROADMAP</span></td></tr>
+  </table>
+  <div class="callout info"><span class="i">&#9432;</span><div><strong>Reliability posture</strong>Items 1&ndash;6 (resilient AI calls, concurrency-safe persistence, scalable search, full observability of swallowed errors, lean payloads, indexed hot paths) are now enterprise-grade and regression-tested. A dedicated suite (<code>tests/test_reliability_fixes.py</code>) locks each remediation against regression. The whole codebase compiles clean (90 modules) with zero FIXME/HACK markers.</div></div>
+
+  <h3>8.3 Multi-tenancy roadmap</h3>
+  <p>The platform is designed for multi-tenancy as a phased, configuration-driven evolution. Phase 1 (the data layer) has been designed and prototyped: a <code>tenancy.py</code> resolution layer, <code>tenant_id</code> on all data tables, per-tenant ID sequences, Postgres RLS as defence-in-depth, and a tenant-resolution layer engineered so that <strong>database-per-tenant becomes a configuration change</strong> for Tier-1 regulated buyers who demand physical isolation. Subsequent phases add per-endpoint query scoping, per-tenant auth/SSO, per-tenant methodology and AI budgets, and isolation testing.</p>
+  <table class="t">
+    <tr><th>Phase</th><th>Scope</th><th>Effort</th></tr>
+    <tr><td>P1 — Data layer</td><td>Postgres + <code>tenant_id</code> on all tables + RLS + per-tenant IDs</td><td>3–4 wks</td></tr>
+    <tr><td>P2 — Application</td><td>Tenant context injection + query rewrite on 339 endpoints</td><td>3–4 wks</td></tr>
+    <tr><td>P3 — Auth &amp; identity</td><td>Per-tenant users, scoped JWTs, SSO/OIDC</td><td>2–3 wks</td></tr>
+    <tr><td>P4 — Shared services</td><td>Per-tenant methodology, prompts, AI budget, webhooks</td><td>1–2 wks</td></tr>
+    <tr><td>P5 — Hardening</td><td>Isolation test suite, billing hooks, offboarding</td><td>1–2 wks</td></tr>
+  </table>
+
+  <div class="callout info"><span class="i">&#9432;</span><div><strong>Design intent</strong>Items 1–6 of the gap register are engineering hygiene that remove risk; item 7 is an architecture refactor; item 8 begins continuous model evaluation. None requires rework of the core architecture &mdash; tenancy, Postgres, SSO, and regulator-pack automation all slot into the existing design.</div></div>
+
+  <div class="footer-note">
+    <strong>Brata TPRM — Technical Design Document (DOC-TDD-001)</strong> · v4.5.2 · 22 June 2026 · Confidential.
+    Every figure and claim in this document is grounded in the deployed v4.5.2 codebase. Gap register items 1–6 remediated and regression-tested (tests/test_reliability_fixes.py).
+    Repository: github.com/brata-platform/brata.
+  </div>
+</div>
+
+
+</div><!-- /.wrap -->
+</body></html>

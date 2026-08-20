@@ -1,0 +1,814 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Brata TPRM — Standard Operating Procedure v4.2.0</title>
+<style>
+
+:root{--forest:#14302A;--gold:#B8862B;--gold-l:#E8C778;--gold-p:#FBF4E4;--ink:#1a1a1a;--mute:#5a6472;--soft:#F7F5F0;--line:#E5DFD0;--white:#fff;--high:#8A2E3B;--elev:#8a5a1a;--mod:#1F3A52;--low:#1A4D3C;--high-bg:#FDF0F1;--elev-bg:#FDF6EC;--mod-bg:#EEF3FA;--low-bg:#ECF5F0;--sys:#2d4ab3;--sys-bg:#EEF1FB;--auto:#4a1e7a;--auto-bg:#F2ECF9;--human:#0e5c40;--human-bg:#E8F5EE;}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth;font-size:14px}
+body{font-family:Inter,sans-serif;color:var(--ink);background:var(--white);line-height:1.75}
+.layout{display:grid;grid-template-columns:268px 1fr;min-height:100vh}
+.sidebar{background:var(--forest);color:#c8ddd6;position:sticky;top:0;height:100vh;overflow-y:auto}
+.sidebar-top{padding:22px 20px 15px;border-bottom:1px solid rgba(255,255,255,.09)}
+.sidebar-top .title{font-family:Georgia,serif;font-size:16px;color:var(--gold-l);font-weight:700}
+.sidebar-top .doc-id{font-family:'SF Mono',monospace;font-size:10px;color:rgba(255,255,255,.35);margin-top:4px;letter-spacing:.1em}
+.sidebar nav{padding:10px 0 28px}
+.nav-section{padding:13px 20px 4px;font-size:9px;letter-spacing:.14em;text-transform:uppercase;color:rgba(255,255,255,.28);font-weight:600}
+.sidebar nav a{display:block;padding:5px 20px;font-size:11.5px;color:rgba(255,255,255,.58);text-decoration:none;transition:.12s;border-left:3px solid transparent;line-height:1.4}
+.sidebar nav a:hover{color:#fff;background:rgba(255,255,255,.05)}
+.sidebar nav a.active{color:var(--gold-l);border-left-color:var(--gold);background:rgba(184,134,43,.1)}
+.main{max-width:960px}
+.cover{background:var(--forest);color:#fff;padding:52px 48px 44px;position:relative;overflow:hidden}
+.cover::before{content:'';position:absolute;top:-60px;right:-60px;width:320px;height:320px;border-radius:50%;background:radial-gradient(circle,rgba(184,134,43,.12) 0%,transparent 68%)}
+.cover .klass{font-family:'SF Mono',monospace;font-size:10px;letter-spacing:.15em;text-transform:uppercase;color:var(--gold-l);margin-bottom:14px}
+.cover h1{font-family:Georgia,serif;font-size:40px;font-weight:700;line-height:1.1;margin-bottom:12px}
+.cover h1 span{color:var(--gold-l)}
+.cover .lead{font-size:14px;color:rgba(255,255,255,.68);max-width:540px;line-height:1.65}
+.cover-meta{margin-top:36px;display:flex;flex-wrap:wrap;gap:24px}
+.cover-meta-item .label{font-size:10px;color:rgba(255,255,255,.38);letter-spacing:.06em;text-transform:uppercase;margin-bottom:2px}
+.cover-meta-item .val{font-size:12.5px;color:rgba(255,255,255,.8);font-weight:500}
+.cover-bar{margin-top:32px;background:rgba(255,255,255,.07);border-radius:8px;padding:12px 16px;display:flex;gap:22px;flex-wrap:wrap}
+.cover-bar .cb{font-size:11.5px;color:rgba(255,255,255,.55)}
+.cover-bar .cb strong{display:block;font-size:12.5px;color:rgba(255,255,255,.82);font-weight:600;margin-bottom:1px}
+.content{padding:0 48px 80px}
+.section{padding-top:48px}
+.section-hdr{display:flex;gap:12px;align-items:baseline;margin-bottom:20px;padding-bottom:12px;border-bottom:2px solid var(--gold-p)}
+.sec-tag{font-family:'SF Mono',monospace;font-size:10px;color:var(--gold);letter-spacing:.1em;font-weight:600;flex-shrink:0}
+.section-hdr h2{font-family:Georgia,serif;font-size:24px;font-weight:700;color:var(--forest)}
+h3{font-family:Georgia,serif;font-size:17px;font-weight:600;color:var(--forest);margin:26px 0 9px}
+h4{font-size:12px;font-weight:700;color:var(--ink);margin:18px 0 6px;text-transform:uppercase;letter-spacing:.08em}
+p{margin-bottom:11px;font-size:13.5px;color:#2e2e2e;line-height:1.75}
+ul,ol{padding-left:20px;margin:7px 0 11px}
+li{margin-bottom:4px;font-size:13.5px;line-height:1.65}
+code{font-family:'SF Mono',monospace;font-size:11px;background:#f0ede5;padding:1px 5px;border-radius:4px;color:var(--forest)}
+strong{font-weight:700}
+.rule-block{border:1px solid var(--line);border-radius:9px;overflow:hidden;margin:12px 0}
+.rule-hdr{background:var(--forest);color:#fff;padding:8px 15px;display:flex;gap:12px;align-items:center}
+.rule-hdr .rule-id{font-family:'SF Mono',monospace;font-size:10px;color:var(--gold-l);font-weight:700;letter-spacing:.08em;white-space:nowrap}
+.rule-hdr .rule-title{font-size:12.5px;font-weight:600;color:#fff}
+.rule-body{padding:11px 15px;font-size:13px;line-height:1.7;color:#2a2a2a}
+.activity{margin:10px 0}
+.activity-step{display:flex;gap:0;margin:0}
+.as-gutter{width:40px;flex-shrink:0;display:flex;flex-direction:column;align-items:center}
+.as-icon{width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;flex-shrink:0;border:2px solid}
+.as-icon.system{background:var(--sys-bg);color:var(--sys);border-color:#b3c2f0}
+.as-icon.human{background:var(--human-bg);color:var(--human);border-color:#9dd4bc}
+.as-icon.auto{background:var(--auto-bg);color:var(--auto);border-color:#c4a8e8}
+.as-icon.decision{background:var(--elev-bg);color:var(--elev);border-color:#e0b87a}
+.as-line{width:2px;background:var(--line);flex:1;min-height:16px;margin:0 auto}
+.activity-step:last-child .as-line{display:none}
+.as-body{padding:3px 0 20px 13px;flex:1}
+.as-label{font-weight:700;font-size:13.5px;color:var(--forest);line-height:1.4;display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.as-actor{font-size:10px;font-weight:600;letter-spacing:.07em;text-transform:uppercase;border-radius:4px;padding:2px 6px}
+.as-actor.system{background:var(--sys-bg);color:var(--sys)}.as-actor.human{background:var(--human-bg);color:var(--human)}.as-actor.auto{background:var(--auto-bg);color:var(--auto)}.as-actor.decision{background:var(--elev-bg);color:var(--elev)}
+.as-detail{font-size:13px;color:#444;margin-top:5px;line-height:1.65}
+.as-branches{margin-top:8px;display:flex;flex-wrap:wrap;gap:7px}
+.branch{display:flex;align-items:center;gap:6px;font-size:12px;padding:4px 10px;border-radius:7px;border:1px solid var(--line);background:var(--soft)}
+.branch.yes{border-color:#9dd4bc;background:var(--low-bg)}.branch.no{border-color:#e0a0a8;background:var(--high-bg)}.branch.esc{border-color:#e0b87a;background:var(--elev-bg)}
+.branch .bc{font-family:'SF Mono',monospace;font-size:9px;letter-spacing:.07em;text-transform:uppercase;font-weight:700}
+.branch.yes .bc{color:var(--low)}.branch.no .bc{color:var(--high)}.branch.esc .bc{color:var(--elev)}
+.auto-chain{background:var(--auto-bg);border:1px solid #c4a8e8;border-radius:7px;padding:9px 13px;margin-top:7px}
+.auto-chain .ac-hdr{font-weight:700;font-size:11px;letter-spacing:.06em;text-transform:uppercase;margin-bottom:4px;color:var(--auto)}
+.auto-chain ul{margin:0;padding-left:15px}
+.auto-chain li{font-size:12px;margin-bottom:3px;color:#2a1a4a}
+.dt{border-collapse:collapse;width:100%;margin:12px 0;font-size:12.5px}
+.dt th{background:var(--forest);color:#fff;padding:8px 12px;text-align:left;font-weight:600;font-size:11px;letter-spacing:.04em}
+.dt th:first-child{border-radius:6px 0 0 0}.dt th:last-child{border-radius:0 6px 0 0}
+.dt td{padding:7px 12px;border-bottom:1px solid var(--line);vertical-align:top;line-height:1.55}
+.dt tr:last-child td{border-bottom:none}.dt tr:nth-child(even) td{background:#FAFAF6}
+.band{display:inline-block;padding:2px 8px;border-radius:10px;font-size:10px;font-weight:800;letter-spacing:.06em;text-transform:uppercase}
+.band.high{background:var(--high-bg);color:var(--high)}.band.elev{background:var(--elev-bg);color:var(--elev)}.band.mod{background:var(--mod-bg);color:var(--mod)}.band.low{background:var(--low-bg);color:var(--low)}.band.grn{background:#e3efe6;color:#1A4D3C}.band.amb{background:#FDF6EC;color:#8a5a1a}.band.red{background:var(--high-bg);color:var(--high)}
+.tag{display:inline-block;padding:2px 6px;border-radius:4px;font-size:10.5px;background:#eee;color:#444;font-weight:500}
+.tag.reg{background:var(--sys-bg);color:var(--sys)}
+.callout{display:flex;gap:11px;border-radius:8px;padding:12px 15px;margin:12px 0}
+.callout.info{background:var(--mod-bg);border:1px solid #c5d9ed}.callout.warn{background:var(--elev-bg);border:1px solid #e8c07a}.callout.crit{background:var(--high-bg);border:1px solid #e0a0a8}.callout.tip{background:var(--low-bg);border:1px solid #9dcdb8}.callout.sys{background:var(--auto-bg);border:1px solid #c4a8e8}
+.callout .ico{font-size:16px;flex-shrink:0;line-height:1.6}
+.callout .ct{font-size:13px;line-height:1.65}
+.callout .ct strong{display:block;font-weight:700;margin-bottom:2px;font-size:12.5px}
+.ipc{border-left:4px solid var(--auto);border-radius:0 8px 8px 0;background:var(--auto-bg);padding:11px 15px;margin:12px 0}
+.ipc .ipc-hdr{font-size:10.5px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--auto);margin-bottom:7px}
+.ipc table{border-collapse:collapse;width:100%;font-size:12px}
+.ipc th{font-size:10.5px;font-weight:600;color:var(--auto);padding:4px 9px;border-bottom:1px solid #c4a8e8;text-align:left}
+.ipc td{padding:4px 9px;border-bottom:1px solid rgba(196,168,232,.3);vertical-align:top;line-height:1.5}
+.ipc tr:last-child td{border-bottom:none}
+.ipc .src{font-family:'SF Mono',monospace;font-size:10px;color:var(--auto)}.ipc .dst{font-family:'SF Mono',monospace;font-size:10px;color:#0e5c40}
+.legend{display:flex;gap:16px;flex-wrap:wrap;padding:9px 14px;background:var(--soft);border-radius:8px;margin:12px 0;border:1px solid var(--line)}
+.legend-item{display:flex;align-items:center;gap:6px;font-size:11.5px;color:#444}
+.legend-dot{width:20px;height:20px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;flex-shrink:0}
+.legend-dot.system{background:var(--sys-bg);color:var(--sys);border:1.5px solid #b3c2f0}.legend-dot.human{background:var(--human-bg);color:var(--human);border:1.5px solid #9dd4bc}.legend-dot.auto{background:var(--auto-bg);color:var(--auto);border:1.5px solid #c4a8e8}.legend-dot.decision{background:var(--elev-bg);color:var(--elev);border:1.5px solid #e0b87a}
+@media print{.sidebar{display:none}.layout{display:block}.main{max-width:100%}.section{page-break-before:always}.cover{page-break-before:avoid}.content{padding:0 28px 60px}}
+@media(max-width:860px){.layout{grid-template-columns:1fr}.sidebar{position:static;height:auto}.content{padding:0 18px 60px}.cover{padding:32px 18px 28px}.cover h1{font-size:28px}}
+</style>
+</head>
+<body>
+<div class="layout">
+<aside class="sidebar">
+  <div class="sidebar-top">
+    <div class="title">Brata TPRM</div>
+    <div class="title" style="font-size:12px;color:rgba(255,255,255,.65);font-family:Inter,sans-serif;font-weight:400;margin-top:2px">Standard Operating Procedure</div>
+    <div class="doc-id">DOC-SOP-001 &middot; v4.2.0 &middot; 10 Jun 2026</div>
+  </div>
+  <nav>
+    <div class="nav-section">Platform foundations</div>
+    <a href="#intro">1. Introduction &amp; scope</a>
+    <a href="#principles">2. Core principles</a>
+    <a href="#roles">3. Roles &amp; responsibilities</a>
+    <div class="nav-section">Vendor management</div>
+    <a href="#vendor-create">4. Vendor registration</a>
+    <a href="#vendor-screening">5. Sanctions &amp; AML screening</a>
+    <a href="#vendor-tier">6. Tiering &amp; criticality</a>
+    <div class="nav-section">Assessment lifecycle</div>
+    <a href="#engagement">7. Engagement creation</a>
+    <a href="#proassess">8. ProAssess 8-stage process</a>
+    <a href="#irq">9. IRQ &amp; inherent risk rating</a>
+    <a href="#ddq">10. DDQ due diligence</a>
+    <a href="#residual">11. Residual risk &amp; decision</a>
+    <a href="#autorecord">12. Auto-record chains</a>
+    <div class="nav-section">Documents &amp; artefacts</div>
+    <a href="#documents">13. Document handling</a>
+    <a href="#certs">14. Certifications &amp; expiry</a>
+    <a href="#email-intake">15. Email certificate intake</a>
+    <div class="nav-section">Risk &amp; findings</div>
+    <a href="#findings">16. Finding lifecycle</a>
+    <a href="#remediation">17. Remediation tracking</a>
+    <a href="#risk-register">18. Risk register entries</a>
+    <div class="nav-section">Contracts &amp; finance</div>
+    <a href="#contracts">19. Contract management</a>
+    <a href="#fdd">20. Financial due diligence</a>
+    <div class="nav-section">Ongoing oversight</div>
+    <a href="#monitoring">21. Continuous monitoring</a>
+    <a href="#incidents">22. Incident management</a>
+    <a href="#notable">23. Notable event escalation</a>
+    <a href="#exit">24. Exit planning</a>
+    <div class="nav-section">Platform governance</div>
+    <a href="#notifications">25. Notifications</a>
+    <a href="#schedules">26. Schedules</a>
+    <a href="#ai-gov">27. AI governance</a>
+    <a href="#access">28. Access &amp; authentication</a>
+    <a href="#audit">29. Audit trail &amp; data</a>
+    <a href="#appendix">Appendix: auto-connections</a>
+  </nav>
+</aside>
+<main class="main">
+<div class="cover">
+  <div class="klass">Standard Operating Procedure &middot; Controlled Document &middot; DOC-SOP-001</div>
+  <h1>Brata <span>TPRM</span><br>Activity &amp; Process Manual</h1>
+  <p class="lead">Definitive instruction manual for every role, activity, algorithmic action, human decision, automated chain, and inter-process connection on the Brata platform. Every rule is directly traceable to deployed v4.2.0 source code.</p>
+  <div class="cover-meta">
+    <div class="cover-meta-item"><div class="label">Version</div><div class="val">4.2.0 &middot; 10 June 2026</div></div>
+    <div class="cover-meta-item"><div class="label">Status</div><div class="val">Approved &middot; Live</div></div>
+    <div class="cover-meta-item"><div class="label">Owner</div><div class="val">Chief Risk Officer / VRM Lead</div></div>
+    <div class="cover-meta-item"><div class="label">Regulatory basis</div><div class="val">PRA SS2/21 &middot; EBA OG &middot; DORA &middot; UK GDPR &middot; FCA SYSC 8 &middot; FSB</div></div>
+  </div>
+  <div class="cover-bar">
+    <div class="cb"><strong>S &mdash; System</strong>Automated platform action</div>
+    <div class="cb"><strong>A &mdash; Algorithm/AI</strong>Rule engine or model</div>
+    <div class="cb"><strong>H &mdash; Human</strong>Named role must act</div>
+    <div class="cb"><strong>D &mdash; Decision</strong>Gate / branch point</div>
+  </div>
+</div>
+<div class="content">
+<div class="section" id="intro">
+  <div class="section-hdr"><span class="sec-tag">SOP-01</span><h2>Introduction &amp; scope</h2></div>
+  <p>This Standard Operating Procedure governs all activities on the Brata TPRM platform. It is the authoritative reference for assessors, business leads, executives, auditors, and technology teams. It supersedes any prior process documentation for platform use.</p>
+  <p><strong>Scope.</strong> All third-party relationships managed through the platform across all legal entities and jurisdictions. This covers initial onboarding, engagement assessment, contract review, ongoing monitoring, incident management, and exit planning.</p>
+  <p><strong>Audit use.</strong> Every rule corresponds to code behaviour in v4.2.0. Function names, module paths, and line references are provided. Where a rule states the system "automatically" performs an action, that action executes without human intervention in the same database transaction and is logged to the immutable audit trail.</p>
+  <div class="legend">
+    <div class="legend-item"><div class="legend-dot system">S</div>System &mdash; triggered by platform code</div>
+    <div class="legend-item"><div class="legend-dot auto">A</div>Algorithm / AI &mdash; rule engine or live model</div>
+    <div class="legend-item"><div class="legend-dot human">H</div>Human &mdash; a named role must act</div>
+    <div class="legend-item"><div class="legend-dot decision">D</div>Decision point &mdash; outcome determines next step</div>
+  </div>
+</div>
+
+<div class="section" id="principles">
+  <div class="section-hdr"><span class="sec-tag">SOP-02</span><h2>Core principles</h2></div>
+  <div class="rule-block"><div class="rule-hdr"><span class="rule-id">P-01</span><span class="rule-title">Deterministic-first, AI-augmented</span></div><div class="rule-body">Every workflow produces a deterministic outcome without a live AI model. AI enriches outputs; it never gates process steps. When AI is unavailable the system falls back to its rule engine and labels the output accordingly. The assessor's signed-off judgement is the system of record.</div></div>
+  <div class="rule-block"><div class="rule-hdr"><span class="rule-id">P-02</span><span class="rule-title">Single source of truth per record</span></div><div class="rule-body">Each vendor, engagement, assessment, finding, contract and document has exactly one authoritative record identified by a system-generated ID: <code>VEN-xxxxxx</code> / <code>ENG-xxxxxx</code> / <code>ASM-xxxxxx</code> / <code>FND-xxxxxx</code> / <code>CTR-xxxxxx</code> / <code>ART-xxxxxx</code>. All inter-process references use these IDs.</div></div>
+  <div class="rule-block"><div class="rule-hdr"><span class="rule-id">P-03</span><span class="rule-title">Risk-averse defaults</span></div><div class="rule-body">When the system cannot establish a material fact it resolves in the most risk-averse direction. Unscored criticality parameters are treated as 5 (maximum). An unknown country is treated as potentially sanctioned. An absent contract clause is treated as missing. An unverified control provides no residual risk reduction.</div></div>
+  <div class="rule-block"><div class="rule-hdr"><span class="rule-id">P-04</span><span class="rule-title">Every action is audited</span></div><div class="rule-body">Every state-changing action is written to the immutable audit log: UTC timestamp, actor username, action type, and a JSON payload of changed values. The log cannot be edited or deleted through the platform interface.</div></div>
+  <div class="rule-block"><div class="rule-hdr"><span class="rule-id">P-05</span><span class="rule-title">Third-party content isolated in AI prompts</span></div><div class="rule-body">All third-party document text entering an AI prompt is enclosed in <code>&lt;untrusted_document&gt;</code> tags with a security preamble (<code>ai_json.py:wrap_untrusted()</code>). This is enforced at source-code level and cannot be bypassed by any call-site.</div></div>
+</div>
+
+<div class="section" id="roles">
+  <div class="section-hdr"><span class="sec-tag">SOP-03</span><h2>Roles &amp; responsibilities</h2></div>
+  <table class="dt">
+    <tr><th>Role</th><th>Key</th><th>Primary responsibilities</th><th>Key restrictions</th></tr>
+    <tr><td><strong>Administrator</strong></td><td><code>admin</code></td><td>All platform permissions. Manages users, roles, AI keys, prompt registry, methodology, webhooks, MCP, notification settings, system config.</td><td>None</td></tr>
+    <tr><td><strong>Assessor (VRM)</strong></td><td><code>vrm</code></td><td>Runs ProAssess &amp; BroAssess. Creates findings, incidents, remediations. Sets vendor criticality. Signs off assessments. Exports audit logs.</td><td>Cannot create/edit vendors; cannot configure system; cannot delete findings.</td></tr>
+    <tr><td><strong>Buyer / Business Lead</strong></td><td><code>buyer</code></td><td>Creates vendors and engagements. Provides ProAssess context (autopilot mode). Manages contract intel, evidence, performance data. Submits criticality scoring inputs.</td><td>Cannot run full ProAssess; cannot manage incidents; cannot configure system.</td></tr>
+    <tr><td><strong>Controller</strong></td><td><code>controller</code></td><td>Reviews and approves assessments. Manages incidents and findings (incl. deletion). Exports audit logs. Assigns engagements.</td><td>Cannot configure system or run ProAssess.</td></tr>
+    <tr><td><strong>Executive Management</strong></td><td><code>exec</code></td><td>Read-only access to all data, dashboards, board pack, vendor/engagement views, findings and incidents.</td><td>All create/edit/approve actions.</td></tr>
+    <tr><td><strong>Vendor / Supplier</strong></td><td><code>vendor</code></td><td>Portal access only: view assigned findings; submit DDQ responses.</td><td>All platform data outside their portal.</td></tr>
+  </table>
+  <div class="callout info"><div class="ico">&#8505;&#65039;</div><div class="ct"><strong>Permission enforcement</strong>Every API endpoint verifies the calling user's role permissions before processing. A mismatch returns HTTP 403 before any data is read or written &mdash; applies identically to UI actions and direct API calls.</div></div>
+</div>
+
+<div class="section" id="vendor-create">
+  <div class="section-hdr"><span class="sec-tag">SOP-04</span><h2>Vendor registration</h2></div>
+  <h3>4.1 Manual registration</h3>
+  <div class="activity">
+    <div class="activity-step"><div class="as-gutter"><div class="as-icon human">H</div><div class="as-line"></div></div><div class="as-body"><div class="as-label"><span class="as-actor human">Buyer or Assessor</span> Initiate creation &amp; use Dump to Draft</div><div class="as-detail">Open Vendor Register &rarr; New Vendor. Optionally upload documents (onboarding pack, company profile, contract) via Dump to Draft. System reads documents and pre-fills feasible fields (legal name, registration number, HQ country, website, parent company) using label-matching offline or AI if configured. All pre-filled values must be reviewed before saving.</div></div></div>
+    <div class="activity-step"><div class="as-gutter"><div class="as-icon human">H</div><div class="as-line"></div></div><div class="as-body"><div class="as-label"><span class="as-actor human">Buyer or Assessor</span> Complete vendor record</div><div class="as-detail">Required: <strong>Legal name.</strong> Recommended: Tier (1&ndash;3), HQ country, trading name, parent company, group. Tier defaults to Tier&nbsp;3 if not set.</div></div></div>
+    <div class="activity-step"><div class="as-gutter"><div class="as-icon system">S</div><div class="as-line"></div></div><div class="as-body"><div class="as-label"><span class="as-actor system">System</span> Auto-assign ID and persist</div>
+      <div class="auto-chain"><div class="ac-hdr">&#9881; Automated on creation</div><ul>
+        <li>Unique <code>VEN-xxxxxx</code> ID assigned; record written to <code>vendor_records</code></li>
+        <li>Tier defaults to <strong>Tier 3</strong> if not supplied</li>
+        <li>Audit event <code>vendor.created</code> written (actor, timestamp, record payload)</li>
+        <li>If <code>vendor.created</code> notification enabled &rarr; notification emitted to configured audience</li>
+      </ul></div>
+    </div></div>
+  </div>
+  <h3>4.2 CSV bulk import</h3>
+  <div class="activity">
+    <div class="activity-step"><div class="as-gutter"><div class="as-icon human">H</div><div class="as-line"></div></div><div class="as-body"><div class="as-label"><span class="as-actor human">Assessor or Buyer</span> Prepare and upload CSV</div><div class="as-detail">Required column: <code>legal_name</code>. Optional: <code>tier</code>, <code>hq_country</code>, <code>is_critical</code>. UTF-8 (BOM accepted). Max 25 MB. Magic-byte validation applied. Via Vendor Register &rarr; Import CSV.</div></div></div>
+    <div class="activity-step"><div class="as-gutter"><div class="as-icon system">S</div><div class="as-line"></div></div><div class="as-body"><div class="as-label"><span class="as-actor system">System</span> Preview validation</div><div class="as-detail">Returns total rows, valid count, errors (up to 50). Rows rejected if: <code>legal_name</code> missing; name duplicates existing register (case-insensitive); name duplicates another row in file. Invalid tier values default to Tier 3 (not an error).</div></div></div>
+    <div class="activity-step"><div class="as-gutter"><div class="as-icon human">H</div><div class="as-line"></div></div><div class="as-body"><div class="as-label"><span class="as-actor human">Assessor or Buyer</span> Review preview and confirm</div><div class="as-detail">User reviews report and confirms commit. Irreversible &mdash; confirmed vendors are added to the live register immediately.</div></div></div>
+    <div class="activity-step"><div class="as-gutter"><div class="as-icon system">S</div><div class="as-line"></div></div><div class="as-body"><div class="as-label"><span class="as-actor system">System</span> Commit auto-chain</div>
+      <div class="auto-chain"><div class="ac-hdr">&#9881; On commit (bro_app.py:3055)</div><ul>
+        <li>Each valid row &rarr; <code>VEN-xxxxxx</code> assigned, record written</li>
+        <li><code>is_critical=yes/true/1/y</code> &rarr; vendor flagged <code>is_critical=true</code></li>
+        <li>Audit event <code>v2.vendors_imported</code> (actor, count, timestamp)</li>
+        <li>If <code>import.completed</code> notification enabled &rarr; one notification emitted</li>
+        <li>If <code>vendor.created</code> notification enabled &rarr; one notification per vendor created</li>
+      </ul></div>
+    </div></div>
+  </div>
+</div>
+
+<div class="section" id="vendor-screening">
+  <div class="section-hdr"><span class="sec-tag">SOP-05</span><h2>Sanctions &amp; AML screening</h2></div>
+  <p>Checks vendor entities and associated persons against: OFAC SDN &amp; Consolidated Non-SDN; UN Consolidated List; EU Consolidated Financial Sanctions; OFSI (HM Treasury); and PEP lists. Name normalisation and fuzzy matching applied. Results: <strong>Clear</strong>, <strong>Review</strong> (potential match), or <strong>Hit</strong> (confirmed match).</p>
+  <div class="callout warn"><div class="ico">&#9888;&#65039;</div><div class="ct"><strong>Live feed requirement</strong>The deployment uses representative demo fixtures. For production compliance, the four Tier-1 feeds (OFAC, UN, EU, OFSI) must be connected to direct-issuer downloads. The matching logic, banding and audit trail are production-ready.</div></div>
+  <div class="activity">
+    <div class="activity-step"><div class="as-gutter"><div class="as-icon auto">A</div><div class="as-line"></div></div><div class="as-body"><div class="as-label"><span class="as-actor auto">Algorithm</span> Name normalisation and fuzzy match</div><div class="as-detail">Legal suffixes stripped, punctuation collapsed, diacritics transliterated. Fuzzy matching applied per list entry. Match confidence score computed.</div></div></div>
+    <div class="activity-step"><div class="as-gutter"><div class="as-icon system">S</div><div class="as-line"></div></div><div class="as-body"><div class="as-label"><span class="as-actor system">System</span> Apply outcome and auto-record</div>
+      <div class="auto-chain"><div class="ac-hdr">&#9881; apply_screening_outcome() &mdash; registry_service.py:410</div><ul>
+        <li><strong>Clear:</strong> all open sanctions IssueRecords for this vendor &rarr; status=&quot;Closed&quot;, closed_reason=&quot;re-screened clear&quot;</li>
+        <li><strong>Review:</strong> new IssueRecord (kind=sanctions_review) created unless one already open</li>
+        <li><strong>Hit:</strong> IssueRecord (kind=sanctions_hit) created; vendor escalated to Critical</li>
+        <li>All bands: VendorScreening record written (timestamp, lists, score, decision)</li>
+        <li>If <code>sanctions.hit</code> notification enabled and result is Hit or Review &rarr; notification emitted</li>
+        <li>Audit event written</li>
+      </ul></div>
+    </div></div>
+    <div class="activity-step"><div class="as-gutter"><div class="as-icon decision">D</div><div class="as-line"></div></div><div class="as-body"><div class="as-label"><span class="as-actor decision">Gate</span> Outcome routing</div><div class="as-branches">
+      <div class="branch no"><span class="bc">Hit</span> &rarr; Escalate to Compliance; no engagement proceeds</div>
+      <div class="branch esc"><span class="bc">Review</span> &rarr; Assessor investigates; issue must be closed before engagement activates</div>
+      <div class="branch yes"><span class="bc">Clear</span> &rarr; Open issue auto-closed; vendor eligible for engagement</div>
+    </div></div></div>
+  </div>
+  <div class="rule-block"><div class="rule-hdr"><span class="rule-id">R-SCR-1</span><span class="rule-title">No active engagement on open sanctions issue</span></div><div class="rule-body">A vendor with an open <code>sanctions_hit</code> or <code>sanctions_review</code> issue must not have any engagement set to Active. The assessor must close the issue with documented rationale first.</div></div>
+</div>
+
+<div class="section" id="vendor-tier">
+  <div class="section-hdr"><span class="sec-tag">SOP-06</span><h2>Tiering &amp; criticality designation</h2></div>
+  <table class="dt">
+    <tr><th>Tier</th><th>Criteria</th><th>Due diligence</th><th>Re-assessment cadence</th><th>Exit plan</th></tr>
+    <tr><td><strong>Tier 1</strong></td><td>Critical/important function; regulatory outsourcing threshold (PRA SS2/21 / DORA Art. 28)</td><td>Full ProAssess + FDD (Vera) + contract review</td><td>12 months</td><td>Mandatory; stressed playbook required</td></tr>
+    <tr><td><strong>Tier 2</strong></td><td>Material dependency; significant data/operational exposure</td><td>ProAssess + key clauses</td><td>18 months</td><td>Required; stressed playbook recommended</td></tr>
+    <tr><td><strong>Tier 3</strong></td><td>Standard commercial supplier; limited exposure (default)</td><td>BroAssess or abridged IRQ</td><td>24 months</td><td>Best-practice; mandatory if critical flag set</td></tr>
+  </table>
+  <h3>6.1 Engagement criticality scoring</h3>
+  <div style="background:#f7f5f0;border:1px solid var(--line);border-radius:8px;padding:11px 16px;margin:11px 0;font-family:'SF Mono',monospace;font-size:12.5px">
+    customer_impact &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&times; 0.35<br>downtime_tolerance &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&times; 0.25<br>alternative_availability &nbsp;&nbsp;&nbsp;&nbsp;&times; 0.20<br>substitution_complexity &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&times; 0.20<br>
+    <div style="margin-top:6px;color:var(--forest);font-weight:600">Threshold: weighted score &ge; 3.5 &rarr; engagement is CRITICAL</div>
+    <div style="color:var(--high);font-weight:600">Override: inherent band = HIGH &rarr; score floored to &ge; 3.5 regardless</div>
+  </div>
+  <div class="activity-step"><div class="as-gutter"><div class="as-icon system">S</div><div class="as-line" style="display:none"></div></div><div class="as-body"><div class="as-label"><span class="as-actor system">System</span> Critical designation cascade</div>
+    <div class="auto-chain"><div class="ac-hdr">&#9881; On critical designation (master_service.py:782/819/855)</div><ul>
+      <li><code>mark_contracts_critical(engagement_id)</code> &rarr; all linked ContractRecords.is_critical=true</li>
+      <li>VendorRecord.is_critical set to true</li>
+      <li>Exit plan requirements tightened: stressed playbook mandatory; test cadence = 365 days</li>
+      <li>Monitoring cadence elevated; DORA/CTP watchlist eligibility assessed on next sweep</li>
+    </ul></div>
+  </div></div>
+</div>
+
+<div class="section" id="engagement">
+  <div class="section-hdr"><span class="sec-tag">SOP-07</span><h2>Engagement creation</h2></div>
+  <div class="activity">
+    <div class="activity-step"><div class="as-gutter"><div class="as-icon human">H</div><div class="as-line"></div></div><div class="as-body"><div class="as-label"><span class="as-actor human">Buyer or Assessor</span> Create engagement record</div><div class="as-detail">Required: title, vendor linkage (<code>VEN-xxxxxx</code>). Recommended: description, data categories, annual value, supporting documents. Dump to Draft available: upload contracts or briefing packs; AI fills title and description fields.</div></div></div>
+    <div class="activity-step"><div class="as-gutter"><div class="as-icon system">S</div><div class="as-line"></div></div><div class="as-body"><div class="as-label"><span class="as-actor system">System</span> Auto-assign ID</div><div class="as-detail"><code>ENG-xxxxxx</code> assigned. Record written to <code>engagement_records</code>. Status: <strong>Draft</strong>. Audit event <code>engagement.created</code> written.</div></div></div>
+    <div class="activity-step"><div class="as-gutter"><div class="as-icon human">H</div><div class="as-line"></div></div><div class="as-body"><div class="as-label"><span class="as-actor human">Business Lead</span> Submit criticality scoring inputs</div><div class="as-detail">Score the four parameters (1&ndash;5 each). Assessor may override with documented rationale (requires <code>vendor.critical</code> permission).</div></div></div>
+    <div class="activity-step"><div class="as-gutter"><div class="as-icon auto">A</div><div class="as-line"></div></div><div class="as-body"><div class="as-label"><span class="as-actor auto">Algorithm</span> Compute criticality and trigger cascade</div><div class="as-detail">Weighted score computed. If &ge; 3.5 or inherent=HIGH: engagement flagged critical; contracts marked critical; vendor marked critical; risk profile refreshed.</div></div></div>
+    <div class="activity-step"><div class="as-gutter"><div class="as-icon human">H</div><div class="as-line"></div></div><div class="as-body"><div class="as-label"><span class="as-actor human">Assessor</span> Launch ProAssess</div><div class="as-detail">Initiate the 8-stage ProAssess assessment from the engagement record. See SOP-08.</div></div></div>
+  </div>
+</div>
+
+<div class="section" id="proassess">
+  <div class="section-hdr"><span class="sec-tag">SOP-08</span><h2>ProAssess 8-stage assessment process</h2></div>
+  <p>Eight sequential stages; each has a designated lead agent, defined inputs, a defined output, and a system action. All stages run deterministically offline; a live AI model enriches each stage when configured.</p>
+  <div class="callout sys"><div class="ico">&#128208;</div><div class="ct"><strong>Guided by the Methodology folder</strong>Both ProAssess and BRO&nbsp;Chat assess <em>strictly under the firm&rsquo;s methodology</em> held in the <strong>Methodology folder</strong> (the Methodology&nbsp;Library, top of the menu, admin-managed). At assessment time the active methodology document(s) are injected into every AI stage as the authoritative directive that overrides general defaults. If no methodology is loaded, both fall back to recognised best practice (PRA&nbsp;SS2/21, EBA Outsourcing, DORA, FSB toolkit, NIST&nbsp;SP&nbsp;800-161). Maintain the methodology in the Methodology&nbsp;Library &mdash; <em>not</em> the general Documents area, which holds per-vendor evidence and does not steer the methodology.</div></div>
+  <div class="callout sys"><div class="ico">&#9881;</div><div class="ct"><strong>Handoff limit</strong>Within any stage a lead agent may hand off to one specialist (maximum 2 handoffs per stage). The lead agent writes the final stage output regardless of handoffs. All handoffs logged to session transcript.</div></div>
+  <table class="dt">
+    <tr><th>Stage</th><th>Name</th><th>Lead agent</th><th>Human input</th><th>Key output</th><th>Auto-record action</th></tr>
+    <tr><td>0</td><td>Context dump</td><td>Bro</td><td>Free-text description; optional uploads</td><td>Structured context: service, data, regulatory flags</td><td>Uploaded docs stored as ART-xxxxxx</td></tr>
+    <tr><td>1</td><td>Engagement details</td><td>Bro</td><td>Business lead confirms scope and data classification</td><td>Confirmed engagement definition</td><td>Engagement scope flags updated</td></tr>
+    <tr><td>2</td><td>IRQ</td><td>Sara (Scope)</td><td>Business lead answers IRQ</td><td>IRQ answer set; exposure matrix; flags set</td><td>IRQ answers and flags written to engagement record</td></tr>
+    <tr><td>3</td><td>Inherent risk rating</td><td>Bro</td><td>Assessor reviews; may challenge</td><td>Inherent band; domain score breakdown</td><td>Inherent band written; risk profile refreshed</td></tr>
+    <tr><td>4</td><td>Control domain selection</td><td>Bro</td><td>Assessor confirms or adjusts DDQ scope</td><td>Control domains; question set assembled</td><td>DDQ scope written to session</td></tr>
+    <tr><td>5</td><td>Due diligence (DDQ)</td><td>Isaac (InfoSec)</td><td>Assessor uploads vendor responses, certs, evidence</td><td>Control effectiveness per domain; gap register</td><td>Evidence stored ART-xxxxxx; DDQ responses persisted</td></tr>
+    <tr><td>6</td><td>Residual risk</td><td>Bro</td><td>Assessor reviews; documents overrides</td><td>Residual band; risk-reduction calculation</td><td>Residual band written; risk profile refreshed</td></tr>
+    <tr><td>7</td><td>Decision &amp; memo</td><td>Bro</td><td>Assessor reviews memo; signs off</td><td>Decision verdict; board-ready assessment memo</td><td>Full auto-record chain (SOP-12)</td></tr>
+  </table>
+</div>
+
+<div class="section" id="irq">
+  <div class="section-hdr"><span class="sec-tag">SOP-09</span><h2>IRQ &amp; inherent risk rating</h2></div>
+  <table class="dt">
+    <tr><th>Domain</th><th>Weight</th><th>Score</th><th>Key considerations</th></tr>
+    <tr><td><strong>Information Security</strong></td><td>30%</td><td>0&ndash;4</td><td>Cyber controls, access management, vulnerability management, encryption</td></tr>
+    <tr><td><strong>Privacy &amp; Data Protection</strong></td><td>20%</td><td>0&ndash;4</td><td>GDPR Art. 28, DPA, cross-border transfers, data classification, DPIA</td></tr>
+    <tr><td><strong>Operational Resilience</strong></td><td>15%</td><td>0&ndash;4</td><td>BCM, RTO/RPO, impact tolerance, DR testing</td></tr>
+    <tr><td><strong>Compliance &amp; Regulatory</strong></td><td>10%</td><td>0&ndash;4</td><td>DORA, FCA outsourcing, sanctions, AML, anti-bribery</td></tr>
+    <tr><td><strong>Physical &amp; Environmental</strong></td><td>10%</td><td>0&ndash;4</td><td>Data centre security, physical access, environmental risk</td></tr>
+    <tr><td><strong>Organisation / Governance</strong></td><td>5%</td><td>0&ndash;4</td><td>Board governance, management quality, ownership structure</td></tr>
+    <tr><td><strong>Reputation &amp; Conduct</strong></td><td>5%</td><td>0&ndash;4</td><td>Adverse media, enforcement history, conduct risk</td></tr>
+    <tr><td><strong>ESG &amp; Ethical Sourcing</strong></td><td>5%</td><td>0&ndash;4</td><td>Modern slavery, sustainability, ethical sourcing</td></tr>
+  </table>
+  <table class="dt" style="margin-top:8px">
+    <tr><th>Band</th><th>Decision</th><th>Review cadence</th><th>Escalation</th></tr>
+    <tr><td><span class="band high">HIGH</span></td><td><strong>DO NOT PROCEED</strong></td><td>&mdash;</td><td>CISO + Legal + CRO sign-off required on record</td></tr>
+    <tr><td><span class="band elev">ELEVATED</span></td><td><strong>ESCALATE to CISO</strong></td><td>6 months</td><td>CISO must document approval before engagement proceeds</td></tr>
+    <tr><td><span class="band mod">MODERATE</span></td><td><strong>APPROVE WITH CONDITIONS</strong></td><td>6 months</td><td>Conditions documented; findings raised for open gaps</td></tr>
+    <tr><td><span class="band low">LOW</span></td><td><strong>APPROVE</strong></td><td>12 months</td><td>None; standard monitoring</td></tr>
+  </table>
+  <div class="rule-block"><div class="rule-hdr"><span class="rule-id">R-IRQ-1</span><span class="rule-title">Risk-averse gap resolution (enforced algorithmically)</span></div><div class="rule-body">Any domain that cannot be scored is resolved at worst-case value (4). The system does not allow an un-scored domain to deflate the inherent band. Missing data items are logged as GAPs with domain, issue, and required resolution action.</div></div>
+  <div class="rule-block"><div class="rule-hdr"><span class="rule-id">R-IRQ-2</span><span class="rule-title">Critical control failure floors residual at HIGH</span></div><div class="rule-body">A marginal failure on a critical control floors residual at HIGH regardless of all other control scores. Cannot be overridden without a documented CISO exception on record.</div></div>
+</div>
+
+<div class="section" id="ddq">
+  <div class="section-hdr"><span class="sec-tag">SOP-10</span><h2>DDQ due diligence</h2></div>
+  <div class="activity">
+    <div class="activity-step"><div class="as-gutter"><div class="as-icon human">H</div><div class="as-line"></div></div><div class="as-body"><div class="as-label"><span class="as-actor human">Assessor (Isaac lead)</span> Issue DDQ to vendor</div><div class="as-detail">DDQ question set assembled from Stage 4 domain selection. Issued to vendor contact. Deadline and communication method recorded.</div></div></div>
+    <div class="activity-step"><div class="as-gutter"><div class="as-icon human">H</div><div class="as-line"></div></div><div class="as-body"><div class="as-label"><span class="as-actor human">Vendor</span> Submit DDQ responses and evidence</div><div class="as-detail">Vendor submits answers and evidence (certifications, pen-test reports, BCP extracts) through portal or email intake. If <code>ddq.returned</code> notification is enabled, assessor is notified.</div></div></div>
+    <div class="activity-step"><div class="as-gutter"><div class="as-icon system">S</div><div class="as-line"></div></div><div class="as-body"><div class="as-label"><span class="as-actor system">System</span> Auto-store submitted documents</div>
+      <div class="auto-chain"><div class="ac-hdr">&#9881; Document auto-storage on DDQ evidence receipt</div><ul>
+        <li>Each document &rarr; stored to <code>stored_documents</code> as ART-xxxxxx with full provenance (vendor_id, engagement_id, session_id)</li>
+        <li>File type validated (extension allowlist + magic bytes); invalid files rejected HTTP 415</li>
+        <li>Certificate: expiry date extraction attempted (deterministic regex first; AI if configured)</li>
+        <li>If new certificate supersedes prior by name match: prior artefact is_current=false; open expired_certificate IssueRecord auto-closed</li>
+      </ul></div>
+    </div></div>
+    <div class="activity-step"><div class="as-gutter"><div class="as-icon auto">A</div><div class="as-line"></div></div><div class="as-body"><div class="as-label"><span class="as-actor auto">Specialist agents</span> Review evidence and score controls</div><div class="as-detail">Isaac (InfoSec), Rhea (Resilience), Priya (Privacy), Connor (Compliance), Finn (Physical), Elara (ESG), Mira (Reputation). All third-party text is wrapped in <code>&lt;untrusted_document&gt;</code> tags before entering any AI prompt.</div></div></div>
+    <div class="activity-step"><div class="as-gutter"><div class="as-icon system">S</div><div class="as-line"></div></div><div class="as-body"><div class="as-label"><span class="as-actor system">System</span> Auto-create findings from DDQ gaps</div>
+      <div class="auto-chain"><div class="ac-hdr">&#9881; DDQ gaps &rarr; finding register (master_service.py:1617)</div><ul>
+        <li>Each <strong>risk</strong> in assessment output &rarr; FindingRecord (FND-xxxxxx), severity mapped, source=&quot;AI&quot;, raised_by=&quot;ProAssess&quot;, status=&quot;Draft&quot;</li>
+        <li>Each <strong>gap</strong> &rarr; separate FindingRecord, severity=&quot;Medium&quot;, suggested_remediation populated from gap resolution field</li>
+        <li>All findings linked to: assessment_id, engagement_id, vendor_id, domain label</li>
+        <li><code>_recompute_open_actions(engagement_id)</code> called &rarr; engagement_records.open_actions updated</li>
+        <li>Risk profile refreshed (<code>refresh_risk_profile()</code>)</li>
+      </ul></div>
+    </div></div>
+    <div class="activity-step"><div class="as-gutter"><div class="as-icon human">H</div><div class="as-line"></div></div><div class="as-body"><div class="as-label"><span class="as-actor human">Assessor</span> Review, challenge, and accept findings</div><div class="as-detail">Review all auto-created findings (status=Draft). Confirm (advance to Open) or reject with rationale (close as Not Valid). Set due dates on Open findings. Escalate Critical/High to business lead for acknowledgement.</div></div></div>
+  </div>
+</div>
+
+<div class="section" id="residual">
+  <div class="section-hdr"><span class="sec-tag">SOP-11</span><h2>Residual risk &amp; decision</h2></div>
+  <div class="activity">
+    <div class="activity-step"><div class="as-gutter"><div class="as-icon auto">A</div><div class="as-line"></div></div><div class="as-body"><div class="as-label"><span class="as-actor auto">Algorithm (Bro &mdash; Stage 6)</span> Compute residual band</div><div class="as-detail">Residual = inherent band reduced only by <strong>evidenced</strong> controls. Unverified controls provide zero reduction. Critical control gap floors residual at HIGH regardless of all other controls.</div></div></div>
+    <div class="activity-step"><div class="as-gutter"><div class="as-icon human">H</div><div class="as-line"></div></div><div class="as-body"><div class="as-label"><span class="as-actor human">Assessor</span> Review, challenge, sign off Stage 6</div><div class="as-detail">May override residual band upward only (cannot lower without additional evidence). Override documented with rationale; flagged in audit trail.</div></div></div>
+    <div class="activity-step"><div class="as-gutter"><div class="as-icon auto">A</div><div class="as-line"></div></div><div class="as-body"><div class="as-label"><span class="as-actor auto">Algorithm (Bro &mdash; Stage 7)</span> Generate decision memo</div><div class="as-detail">HIGH=DO NOT PROCEED &middot; ELEVATED=ESCALATE &middot; MODERATE=APPROVE WITH CONDITIONS &middot; LOW=APPROVE. Memo includes: engagement details, risk summary, domain scores, gap register, conditions, rationale.</div></div></div>
+    <div class="activity-step"><div class="as-gutter"><div class="as-icon human">H</div><div class="as-line"></div></div><div class="as-body"><div class="as-label"><span class="as-actor human">Assessor</span> Sign off and register</div><div class="as-detail">Review memo, confirm or override decision with documented rationale, click Register. Triggers full auto-record chain (SOP-12).</div>
+    <div class="as-branches">
+      <div class="branch yes"><span class="bc">LOW &mdash; Approve</span> &rarr; Active; annual review</div>
+      <div class="branch yes"><span class="bc">MODERATE &mdash; Conditions</span> &rarr; Active with findings; 6-month review</div>
+      <div class="branch esc"><span class="bc">ELEVATED &mdash; Escalate</span> &rarr; CISO review; engagement paused</div>
+      <div class="branch no"><span class="bc">HIGH &mdash; Do not proceed</span> &rarr; CISO + Legal + CRO sign-off required</div>
+    </div></div></div>
+  </div>
+</div>
+
+<div class="section" id="autorecord">
+  <div class="section-hdr"><span class="sec-tag">SOP-12</span><h2>Auto-record chains on assessment registration</h2></div>
+  <p>When an assessor registers a completed ProAssess, the system executes a deterministic atomic chain. All writes succeed or all roll back. The <code>tables_written</code> list is returned in the API response and written to the audit log.</p>
+  <div class="ipc">
+    <div class="ipc-hdr">&#9881; register_proassess() complete chain &mdash; master_service.py:1652</div>
+    <table>
+      <tr><th>Step</th><th>Source</th><th>Written to</th><th>Condition</th></tr>
+      <tr><td>1</td><td class="src">master_service</td><td class="dst">assessment_records &rarr; ASM-xxxxxx</td><td>Always; links engagement_id, vendor_id, session_id</td></tr>
+      <tr><td>2</td><td class="src">master_service</td><td class="dst">engagement_records.inherent_band / .residual_band</td><td>If bands present; overwrites prior values</td></tr>
+      <tr><td>3</td><td class="src">master_service</td><td class="dst">stored_documents (proassess_report JSON &rarr; ART-xxxxxx)</td><td>If create_records=true; full JSON report filed as artefact</td></tr>
+      <tr><td>4a</td><td class="src">master_service &rarr; registry_service</td><td class="dst">finding_records per risk &rarr; FND-xxxxxx (source=&quot;AI&quot;, status=&quot;Draft&quot;)</td><td>One per identified risk in assessment output</td></tr>
+      <tr><td>4b</td><td class="src">master_service &rarr; registry_service</td><td class="dst">finding_records per gap &rarr; FND-xxxxxx (severity=&quot;Medium&quot;)</td><td>One per control gap; suggested_remediation populated</td></tr>
+      <tr><td>5</td><td class="src">master_service</td><td class="dst">vendor_master_ext.financial_health_band</td><td>If FDD produced a banding and field was previously empty</td></tr>
+      <tr><td>6</td><td class="src">master_service</td><td class="dst">vendor_monitor_signals (type=&quot;reputation&quot;)</td><td>If reputation assessment present</td></tr>
+      <tr><td>7</td><td class="src">master_service &rarr; registry_service</td><td class="dst">finding_records (from full risk list)</td><td>Deduplication: skips if same-title finding already exists for vendor</td></tr>
+      <tr><td>8</td><td class="src">master_service</td><td class="dst">vendor_risk_profiles (refresh)</td><td>Always; worst-of aggregation across all bands, findings, signals</td></tr>
+      <tr><td>9</td><td class="src">master_service</td><td class="dst">fin_monitor_records (auto-empanelment)</td><td>If no monitoring record exists for vendor &rarr; auto-enrolled for financial monitoring</td></tr>
+      <tr><td>10</td><td class="src">registry_service</td><td class="dst">engagement_records.open_actions (recomputed)</td><td>Count of non-Closed findings linked to engagement</td></tr>
+      <tr><td>11</td><td class="src">audit</td><td class="dst">audit_log</td><td>Always; actor, timestamp, tables_written, final bands</td></tr>
+    </table>
+  </div>
+</div>
+
+<div class="section" id="documents">
+  <div class="section-hdr"><span class="sec-tag">SOP-13</span><h2>Document handling</h2></div>
+  <p>The <strong>Documents</strong> area (under Monitor &amp; Manage) holds per-vendor and per-engagement <em>evidence</em> &mdash; certificates, contracts, policies, questionnaire responses. It is distinct from the <strong>Methodology folder / Library</strong> (top of menu, admin-only), which holds the firm&rsquo;s assessment methodology that guides BRO&nbsp;Chat and ProAssess. Evidence goes in Documents; the methodology that governs how evidence is assessed goes in the Methodology&nbsp;Library.</p>
+  <table class="dt">
+    <tr><th>Rule</th><th>Detail</th></tr>
+    <tr><td>Permitted types</td><td>pdf, docx, xlsx, pptx, csv, txt, md, json, png, jpg/jpeg, zip, eml, msg</td></tr>
+    <tr><td>Maximum size</td><td>25 MB per file &mdash; exceeded: HTTP 413</td></tr>
+    <tr><td>Magic-byte validation</td><td>PDF (<code>%PDF</code>), PNG (<code>\x89PNG</code>), JPEG (<code>\xff\xd8\xff</code>), Office/ZIP (<code>PK\x03\x04</code>). Mismatch: HTTP 415.</td></tr>
+    <tr><td>Blocked types</td><td>All extensions not in permitted list &rarr; HTTP 415 regardless of content-type header</td></tr>
+  </table>
+  <div class="ipc"><div class="ipc-hdr">&#9881; store_document() auto-chain &mdash; documents.py:69</div><table>
+    <tr><th>Action</th><th>Written to</th><th>Provenance links</th></tr>
+    <tr><td>Document stored</td><td class="dst">stored_documents &rarr; ART-xxxxxx</td><td>vendor_id, engagement_id, session_id, purpose, uploaded_by</td></tr>
+    <tr><td>Artefact record created</td><td class="dst">artefact_records</td><td>is_current=true; is_dated flagged if expiry present</td></tr>
+    <tr><td>Certificate expiry extracted</td><td class="dst">artefact_records.expiry_date</td><td>Deterministic regex first; AI if configured</td></tr>
+    <tr><td>Prior certificate superseded</td><td class="dst">prior artefact is_current=false, superseded_by=new ART-xxxxxx</td><td>Triggered on name match</td></tr>
+    <tr><td>Audit event</td><td class="dst">audit_log</td><td>document.added or document.uploaded; actor, timestamp, ART-xxxxxx</td></tr>
+  </table></div>
+</div>
+
+<div class="section" id="certs">
+  <div class="section-hdr"><span class="sec-tag">SOP-14</span><h2>Certification expiry management</h2></div>
+  <div class="ipc"><div class="ipc-hdr">&#9881; revalidation_run() exact rules &mdash; registry_service.py:265</div><table>
+    <tr><th>Condition</th><th>Automated action</th><th>Human action</th></tr>
+    <tr><td>expiry_date &gt; today</td><td>Status = &quot;Valid&quot;; no issue</td><td>None</td></tr>
+    <tr><td>today &le; expiry_date &le; today+7</td><td>Expiry notice added to notify_7day list</td><td>Assessor must chase renewal within 7 days</td></tr>
+    <tr><td>expiry_date &lt; today AND age &le; 30 days</td><td>Status = &quot;Expired&quot;; no issue raised</td><td>Assessor must obtain renewal urgently</td></tr>
+    <tr><td><strong>expiry_date &lt; today &minus; 30 days</strong></td><td><strong>IssueRecord auto-created</strong> (kind=expired_certificate, status=Open); deduplication prevents repeat creation</td><td>Assessor must remediate; appears in open actions</td></tr>
+    <tr><td>New certificate received</td><td>All open expired_certificate IssueRecords for that artefact/vendor auto-closed (closed_reason=&quot;renewal received&quot;)</td><td>None</td></tr>
+  </table></div>
+  <div class="rule-block"><div class="rule-hdr"><span class="rule-id">R-CERT-1</span><span class="rule-title">The 30-day auto-issue rule</span></div><div class="rule-body">Certificate expired &gt;30 calendar days automatically creates one open IssueRecord (created once; deduplication enforced). Receipt of a replacement certificate closes the issue automatically without assessor action.</div></div>
+</div>
+
+<div class="section" id="email-intake">
+  <div class="section-hdr"><span class="sec-tag">SOP-15</span><h2>Email certificate intake</h2></div>
+  <p>Vendors may renew certifications by emailing a designated inbound address. A mail-receiver service posts parsed emails to the platform's inbound webhook endpoint.</p>
+  <div class="activity">
+    <div class="activity-step"><div class="as-gutter"><div class="as-icon system">S</div><div class="as-line"></div></div><div class="as-body"><div class="as-label"><span class="as-actor system">System</span> Match sender to vendor</div><div class="as-detail">(1) Exact match of sender email against vendor contact records. (2) Domain match against vendor website fields. If unmatched: email parked as status=unmatched for manual triage.</div></div></div>
+    <div class="activity-step"><div class="as-gutter"><div class="as-icon auto">A</div><div class="as-line"></div></div><div class="as-body"><div class="as-label"><span class="as-actor auto">Algorithm</span> Extract expiry date</div><div class="as-detail">Regex searches for keywords (&quot;valid until&quot;, &quot;expires&quot;, &quot;expiry&quot;, &quot;expiration&quot;) followed by date pattern within 60 characters. Best-effort; assessor should verify.</div></div></div>
+    <div class="activity-step"><div class="as-gutter"><div class="as-icon system">S</div><div class="as-line"></div></div><div class="as-body"><div class="as-label"><span class="as-actor system">System</span> File artefact and auto-close expired issue</div>
+      <div class="auto-chain"><div class="ac-hdr">&#9881; email_intake.process_email() &mdash; email_intake.py:80</div><ul>
+        <li>New ArtefactRecord created (ART-xxxxxx), linked to matched vendor, received_via=&quot;email&quot;</li>
+        <li>Prior artefact of same certificate name &rarr; is_current=false, superseded_by set</li>
+        <li>Open IssueRecord (kind=expired_certificate) &rarr; auto-closed (closed_reason=&quot;renewal received via email&quot;)</li>
+        <li>Audit event written: artefact_id, vendor_id, sender, expiry extracted</li>
+      </ul></div>
+    </div></div>
+    <div class="activity-step"><div class="as-gutter"><div class="as-icon human">H</div><div class="as-line"></div></div><div class="as-body"><div class="as-label"><span class="as-actor human">Assessor</span> Verify expiry and triage unmatched emails</div><div class="as-detail">Verify extracted expiry against the actual certificate. Triage unmatched emails weekly: match to vendor and file, or reject.</div></div></div>
+  </div>
+</div>
+
+<div class="section" id="findings">
+  <div class="section-hdr"><span class="sec-tag">SOP-16</span><h2>Finding lifecycle</h2></div>
+  <table class="dt">
+    <tr><th>Status</th><th>Meaning</th><th>Who sets it</th><th>Automated trigger</th></tr>
+    <tr><td><strong>Draft</strong></td><td>Auto-created by ProAssess; awaiting confirmation</td><td>System or Assessor</td><td>ProAssess registration creates all findings as Draft</td></tr>
+    <tr><td><strong>Open</strong></td><td>Confirmed; remediation not started</td><td>Assessor confirms from Draft</td><td>&mdash;</td></tr>
+    <tr><td><strong>In Remediation</strong></td><td>Remediation plan created</td><td>System (automatic)</td><td><code>create_remediation()</code> sets this automatically</td></tr>
+    <tr><td><strong>Evidence Submitted</strong></td><td>Vendor submitted closure evidence</td><td>Assessor or Vendor</td><td>&mdash;</td></tr>
+    <tr><td><strong>Validated</strong></td><td>Evidence reviewed; resolved confirmed</td><td>Assessor</td><td>&mdash;</td></tr>
+    <tr><td><strong>Closed</strong></td><td>Finding closed</td><td>Assessor</td><td>Auto-closed when last active engagement for vendor is closed</td></tr>
+  </table>
+  <table class="dt" style="margin-top:8px">
+    <tr><th>Severity</th><th>Remediation expectation</th><th>Escalation if overdue</th></tr>
+    <tr><td><span class="band high">Critical</span></td><td>Plan within 48h; urgent closure</td><td>CISO + Business Lead; <code>finding.overdue</code> notification if enabled</td></tr>
+    <tr><td><span class="band high">High</span></td><td>Plan within 7 days; closure within 30 days</td><td>Escalate to assessor lead and business lead</td></tr>
+    <tr><td><span class="band mod">Medium</span></td><td>Plan within 30 days; closure within 90 days</td><td>Flag to assessor on next review</td></tr>
+    <tr><td><span class="band low">Low</span></td><td>Closure within 180 days</td><td>Review at next assessment</td></tr>
+  </table>
+  <div class="rule-block"><div class="rule-hdr"><span class="rule-id">R-FND-1</span><span class="rule-title">Missing Tier-1 clause = Critical finding (engagement gated)</span></div><div class="rule-body">Any Tier-1 clause absent from a contract gap report is classified Critical. The engagement must not move to Active until this finding is closed or a documented CISO exception is in place.</div></div>
+</div>
+
+<div class="section" id="remediation">
+  <div class="section-hdr"><span class="sec-tag">SOP-17</span><h2>Remediation tracking</h2></div>
+  <div class="activity">
+    <div class="activity-step"><div class="as-gutter"><div class="as-icon human">H</div><div class="as-line"></div></div><div class="as-body"><div class="as-label"><span class="as-actor human">Assessor</span> Create remediation plan</div><div class="as-detail">Required: plan text, owner, due date. Optional: milestone steps.</div></div></div>
+    <div class="activity-step"><div class="as-gutter"><div class="as-icon system">S</div><div class="as-line"></div></div><div class="as-body"><div class="as-label"><span class="as-actor system">System</span> Auto-transition finding status</div>
+      <div class="auto-chain"><div class="ac-hdr">&#9881; create_remediation() &mdash; registry_service.py:177</div><ul>
+        <li>RemediationRecord created (REM-xxxxxx), linked to FND-xxxxxx</li>
+        <li>FindingRecord.remediation_id set to new remediation ID</li>
+        <li>FindingRecord.status automatically set to <strong>&quot;In Remediation&quot;</strong></li>
+        <li>Audit event <code>finding.updated</code> written</li>
+      </ul></div>
+    </div></div>
+    <div class="activity-step"><div class="as-gutter"><div class="as-icon human">H</div><div class="as-line"></div></div><div class="as-body"><div class="as-label"><span class="as-actor human">Vendor / Business Lead</span> Submit closure evidence</div><div class="as-detail">Evidence submitted via portal or direct upload. Status advanced to &quot;Evidence Submitted&quot;.</div></div></div>
+    <div class="activity-step"><div class="as-gutter"><div class="as-icon human">H</div><div class="as-line"></div></div><div class="as-body"><div class="as-label"><span class="as-actor human">Assessor</span> Validate and close</div><div class="as-detail">Satisfactory evidence: advance to &quot;Validated&quot; then &quot;Closed&quot;. Unsatisfactory: revert to &quot;Open&quot; with re-assessment note. Closed findings may be re-opened by assessors with <code>finding.manage</code> permission.</div></div></div>
+  </div>
+</div>
+
+<div class="section" id="risk-register">
+  <div class="section-hdr"><span class="sec-tag">SOP-18</span><h2>Risk register entries</h2></div>
+  <div class="activity">
+    <div class="activity-step"><div class="as-gutter"><div class="as-icon human">H</div><div class="as-line"></div></div><div class="as-body"><div class="as-label"><span class="as-actor human">Assessor</span> Trigger risk register entry from incident</div><div class="as-detail">From incident record, click &quot;Draft risk entry&quot;.</div></div></div>
+    <div class="activity-step"><div class="as-gutter"><div class="as-icon auto">A</div><div class="as-line"></div></div><div class="as-body"><div class="as-label"><span class="as-actor auto">AI (live) / Algorithm (offline)</span> Draft risk entry content</div><div class="as-detail">If live model configured: model generates title, description, and suggested remediation from incident summary using <code>incident_risk_entry</code> prompt. If offline: deterministic template from incident fields.</div></div></div>
+    <div class="activity-step"><div class="as-gutter"><div class="as-icon system">S</div><div class="as-line"></div></div><div class="as-body"><div class="as-label"><span class="as-actor system">System</span> Create finding and link back</div>
+      <div class="auto-chain"><div class="ac-hdr">&#9881; bro_app.py:4295 &mdash; incident &rarr; risk register chain</div><ul>
+        <li>FindingRecord created (FND-xxxxxx), source=&quot;Incident&quot;, severity from incident, status=&quot;Draft&quot;</li>
+        <li>IncidentRecord.risk_entry_needed set to True</li>
+        <li>IncidentRecord.risk_entry_ref set to FND-xxxxxx (bidirectional link)</li>
+        <li>Audit event <code>v2.incident_draft_risk</code> written</li>
+      </ul></div>
+    </div></div>
+    <div class="activity-step"><div class="as-gutter"><div class="as-icon human">H</div><div class="as-line"></div></div><div class="as-body"><div class="as-label"><span class="as-actor human">Assessor</span> Review, amend, and file</div><div class="as-detail">Review AI-drafted content; amend as required; set status to Open. Standard finding lifecycle (SOP-16/17) then applies.</div></div></div>
+  </div>
+</div>
+
+<div class="section" id="contracts">
+  <div class="section-hdr"><span class="sec-tag">SOP-19</span><h2>Contract management</h2></div>
+  <table class="dt">
+    <tr><th>Clause</th><th>Tier</th><th>Basis</th><th>Required from band</th></tr>
+    <tr><td>Parties &amp; scope of services</td><td>2</td><td>Contract certainty</td><td><span class="band low">ANY</span></td></tr>
+    <tr><td>Term &amp; termination</td><td>2</td><td>Market standard</td><td><span class="band low">ANY</span></td></tr>
+    <tr><td>Confidentiality</td><td>2</td><td>Market standard</td><td><span class="band low">ANY</span></td></tr>
+    <tr><td>Data protection / DPA (GDPR Art. 28)</td><td>1 <span class="tag reg">REG</span></td><td>UK GDPR Art. 28</td><td><span class="band mod">MODERATE+</span></td></tr>
+    <tr><td>Information security schedule</td><td>1 <span class="tag reg">REG</span></td><td>Regulatory outsourcing</td><td><span class="band mod">MODERATE+</span></td></tr>
+    <tr><td>Audit &amp; inspection rights</td><td>1 <span class="tag reg">REG</span></td><td>FCA SYSC 8 / DORA Art. 30</td><td><span class="band mod">MODERATE+</span></td></tr>
+    <tr><td>Sub-processing / fourth-party controls</td><td>1 <span class="tag reg">REG</span></td><td>UK GDPR Art. 28(2); DORA</td><td><span class="band mod">MODERATE+</span></td></tr>
+    <tr><td>Business continuity &amp; DR</td><td>1 <span class="tag reg">REG</span></td><td>FCA SYSC 8 outsourcing</td><td><span class="band elev">ELEVATED+</span></td></tr>
+    <tr><td>Exit plan &amp; step-in rights</td><td>1 <span class="tag reg">REG</span></td><td>DORA Art. 28(8) / FCA outsourcing</td><td><span class="band elev">ELEVATED+</span></td></tr>
+    <tr><td>Incident &amp; breach notification</td><td>1 <span class="tag reg">REG</span></td><td>UK GDPR Art. 33; DORA</td><td><span class="band elev">ELEVATED+</span></td></tr>
+    <tr><td>Cross-border transfer safeguards</td><td>1 <span class="tag reg">REG</span></td><td>UK GDPR Ch. V</td><td><span class="band elev">ELEVATED+</span></td></tr>
+    <tr><td>Concentration &amp; substitutability</td><td>3</td><td>Best practice</td><td><span class="band high">HIGH</span></td></tr>
+    <tr><td>Regulator direct access</td><td>1 <span class="tag reg">REG</span></td><td>DORA Art. 30(3)</td><td><span class="band high">HIGH</span></td></tr>
+    <tr><td>Source code / data escrow</td><td>3</td><td>Best practice</td><td><span class="band high">HIGH</span></td></tr>
+  </table>
+  <div class="rule-block"><div class="rule-hdr"><span class="rule-id">R-CTR-1</span><span class="rule-title">Missing Tier-1 clause = Critical finding; engagement gated</span></div><div class="rule-body">Any Tier-1 clause absent from a gap report is classified Critical. Engagement must not move to Active until finding is closed or CISO exception is on record.</div></div>
+  <div class="rule-block"><div class="rule-hdr"><span class="rule-id">R-CTR-2</span><span class="rule-title">Critical engagement auto-flags all linked contracts</span></div><div class="rule-body">On critical designation, <code>mark_contracts_critical()</code> automatically sets is_critical=true on all ContractRecords linked to the engagement or vendor.</div></div>
+</div>
+
+<div class="section" id="fdd">
+  <div class="section-hdr"><span class="sec-tag">SOP-20</span><h2>Financial due diligence (Vera)</h2></div>
+  <p>Vera analyses submitted financial statements across 17 ratios plus Altman Z&prime;-score to produce a financial health band.</p>
+  <table class="dt">
+    <tr><th>Band</th><th>Signal</th><th>Automated action</th><th>Human action</th></tr>
+    <tr><td><span class="band grn">GREEN</span></td><td>No material concerns</td><td>Band written to vendor master; monitoring signal updated; risk profile refreshed</td><td>Standard monitoring cadence</td></tr>
+    <tr><td><span class="band amb">AMBER</span></td><td>One or more ratios outside threshold</td><td>Monitoring signal = &quot;caution&quot;; watchlist consideration flagged</td><td>Enhanced monitoring; assessor reviews at next period</td></tr>
+    <tr><td><span class="band red">RED</span></td><td>Significant distress; potential going-concern</td><td>Monitoring signal = &quot;distress&quot;; <code>fdd.distress</code> notification emitted (if enabled); risk posture raised to minimum ELEVATED</td><td><strong>Immediate escalation</strong>; exit pre-planning activated within 5 business days</td></tr>
+  </table>
+  <div class="rule-block"><div class="rule-hdr"><span class="rule-id">R-FDD-1</span><span class="rule-title">RED = mandatory exit pre-planning within 5 business days</span></div><div class="rule-body">A RED financial health band mandates exit pre-planning regardless of operational risk band. Assessor must initiate or update the exit plan within 5 business days of a RED determination.</div></div>
+</div>
+<div class="section" id="monitoring">
+  <div class="section-hdr"><span class="sec-tag">SOP-21</span><h2>Continuous monitoring</h2></div>
+  <p>The monitoring sweep evaluates the full portfolio on the configured cadence (default 24 hours; env: <code>BRO_MONITORING_INTERVAL_HOURS</code>). Each run is logged to <code>monitoring_runs</code> with run_id, trigger, started_at, finished_at, and status.</p>
+  <div class="ipc"><div class="ipc-hdr">&#9881; Monitoring sweep chain &mdash; monitoring.py:103</div><table>
+    <tr><th>Step</th><th>What is evaluated</th><th>Alert condition</th><th>Automated action</th></tr>
+    <tr><td>1</td><td>Vendor monitoring signals (financial, reputation, monitoring)</td><td>Distress or critical signals</td><td>Signal written; risk profile refreshed; <code>monitoring.alert</code> notification (if enabled)</td></tr>
+    <tr><td>2</td><td>Watchlist eligibility (DORA/UK CTP)</td><td>New eligibility detected</td><td>Watchlist entry created; <code>watchlist.added</code> notification (if enabled)</td></tr>
+    <tr><td>3</td><td>Sanctions re-screening (if enabled)</td><td>Hit or Review result</td><td><code>apply_screening_outcome()</code> chain (SOP-05)</td></tr>
+    <tr><td>4</td><td>Certificate expiry (if enabled)</td><td>Expired &gt;30 days</td><td><code>revalidation_run()</code> chain (SOP-14)</td></tr>
+    <tr><td>5</td><td>Findings past due date</td><td>due_date &lt; today and status &ne; Closed</td><td><code>finding.overdue</code> notification (if enabled)</td></tr>
+    <tr><td>6</td><td>Cyber certifications cache</td><td>&mdash;</td><td><code>refresh_cyber_certs(vendor_id)</code> for all vendors</td></tr>
+    <tr><td>7</td><td>Run completion</td><td>&mdash;</td><td>MonitoringRun.finished_at set; status and alert_count written</td></tr>
+  </table></div>
+  <div class="rule-block"><div class="rule-hdr"><span class="rule-id">R-MON-1</span><span class="rule-title">DORA / UK CTP watchlist criteria</span></div><div class="rule-body">A vendor must be placed on the Watchlist if: (a) designated a Critical ICT Third-Party under DORA Art. 31; or (b) designated a Critical Third Party under FSMA 2023. Consequences: enhanced monitoring cadence; mandatory exit plan with stressed playbook; regulatory register inclusion.</div></div>
+</div>
+
+<div class="section" id="incidents">
+  <div class="section-hdr"><span class="sec-tag">SOP-22</span><h2>Incident management</h2></div>
+  <div class="activity">
+    <div class="activity-step"><div class="as-gutter"><div class="as-icon human">H</div><div class="as-line"></div></div><div class="as-body"><div class="as-label"><span class="as-actor human">Assessor / Business Lead</span> Log incident</div><div class="as-detail">Required: vendor link, incident_type, severity, impact_description. System assigns <code>INC-xxxxxx</code>. Status: Drafted. Audit event <code>incident.raised</code> written. <code>incident.logged</code> notification emitted if enabled.</div></div></div>
+    <div class="activity-step"><div class="as-gutter"><div class="as-icon system">S</div><div class="as-line"></div></div><div class="as-body"><div class="as-label"><span class="as-actor system">System</span> Auto-tag to active engagements and start SLA clock</div><div class="as-detail">All active engagements under the vendor written to <code>IncidentRecord.active_engagements</code> (JSON). Vendor notification SLA clock starts at log timestamp. SLA breach &rarr; <code>incident.sla_breach</code> notification (if enabled).</div></div></div>
+    <div class="activity-step"><div class="as-gutter"><div class="as-icon human">H</div><div class="as-line"></div></div><div class="as-body"><div class="as-label"><span class="as-actor human">Assessor</span> Manage and investigate</div><div class="as-detail">Document vendor notification, root cause, contract obligations. War Room view consolidates vendor profile, engagement exposure, contract terms, and exit options.</div></div></div>
+    <div class="activity-step"><div class="as-gutter"><div class="as-icon decision">D</div><div class="as-line"></div></div><div class="as-body"><div class="as-label"><span class="as-actor decision">Gate</span> Notable event determination</div><div class="as-branches">
+      <div class="branch no"><span class="bc">&#9876; Notable</span> &rarr; Flag incident; management notification forced immediately &mdash; bypasses all settings (SOP-23)</div>
+      <div class="branch yes"><span class="bc">Standard</span> &rarr; Standard workflow; normal notification rules apply</div>
+    </div></div></div>
+    <div class="activity-step"><div class="as-gutter"><div class="as-icon human">H</div><div class="as-line"></div></div><div class="as-body"><div class="as-label"><span class="as-actor human">Assessor</span> Resolve and close</div><div class="as-detail">Document resolution. If <code>risk_entry_needed</code> was flagged: risk register entry must be raised (SOP-18) before closure. Critical-severity incidents: re-assessment of affected engagement mandatory within 30 days of resolution.</div></div></div>
+  </div>
+</div>
+
+<div class="section" id="notable">
+  <div class="section-hdr"><span class="sec-tag">SOP-23</span><h2>Notable event escalation</h2></div>
+  <div class="rule-block"><div class="rule-hdr"><span class="rule-id">R-NE-1</span><span class="rule-title">Notable event notifications are unconditional</span></div><div class="rule-body">A &#9876; Notable Event notification is created with <code>force=True</code> (notifications.py:emit). This bypasses all notification on/off switches. The notification ALWAYS fires at the moment of flagging, ALWAYS reaches the management audience, and CANNOT be suppressed by any configuration. Enforced at code level.</div></div>
+  <div class="activity">
+    <div class="activity-step"><div class="as-gutter"><div class="as-icon human">H</div><div class="as-line"></div></div><div class="as-body"><div class="as-label"><span class="as-actor human">Assessor</span> Flag notable event</div><div class="as-detail">Click &#9876; Notable event button on incident record. Confirmation dialog shown. Requires <code>incident.view</code> permission.</div></div></div>
+    <div class="activity-step"><div class="as-gutter"><div class="as-icon system">S</div><div class="as-line"></div></div><div class="as-body"><div class="as-label"><span class="as-actor system">System</span> Force management notification</div>
+      <div class="auto-chain"><div class="ac-hdr">&#9881; bro_app.py:2660 &mdash; unconditional escalation chain</div><ul>
+        <li>Incident ID added to <code>notable_incidents</code> list in system_config</li>
+        <li><code>notifications.emit(force=True, audience=&quot;management&quot;)</code> &mdash; bypasses all settings</li>
+        <li>Notification record: type=&quot;incident.notable&quot;, title=&quot;NOTABLE EVENT: [type] at [vendor]&quot;</li>
+        <li>Visible immediately in Notifications inbox for management audience</li>
+        <li>Audit event <code>incident.notable</code> written: incident_id, actor, timestamp</li>
+      </ul></div>
+    </div></div>
+    <div class="activity-step"><div class="as-gutter"><div class="as-icon human">H</div><div class="as-line"></div></div><div class="as-body"><div class="as-label"><span class="as-actor human">Management</span> Acknowledge and respond</div><div class="as-detail">Acknowledges in Notifications inbox. Documents response and decisions in incident record notes_log. War Room view available for full context.</div></div></div>
+  </div>
+</div>
+
+<div class="section" id="exit">
+  <div class="section-hdr"><span class="sec-tag">SOP-24</span><h2>Exit planning</h2></div>
+  <p>Every critical vendor must maintain a documented exit plan scored for readiness. Viny (the AI exit-planning agent) drafts from organisation data and optionally enriches with public information when a live model is configured.</p>
+  <h3>24.1 Exit plan readiness scoring</h3>
+  <table class="dt">
+    <tr><th>Component</th><th>Points</th><th>Condition for award</th></tr>
+    <tr><td>Exit strategy documented</td><td>25</td><td>strategy_type field is set (alternative_provider / insource / multi_source / run_off / market_exit)</td></tr>
+    <tr><td>Stressed-exit playbook present</td><td>15</td><td>exit_mode includes "stressed" AND ≥ 3 transition steps are recorded</td></tr>
+    <tr><td>Alternative providers identified</td><td>20</td><td>≥ 1 ExitAlternative record marked pre-qualified</td></tr>
+    <tr><td>Tested within cadence</td><td>20 (on-time) / 8 (late)</td><td>Critical vendors: last_tested within 365 days. Standard: 730 days. Late = test was performed but outside cadence.</td></tr>
+    <tr><td>Dependencies mapped</td><td>10</td><td>≥ 1 ExitDependency record with impact tolerance set</td></tr>
+    <tr><td>Data return plan documented</td><td>10</td><td>data_plan field is non-empty</td></tr>
+  </table>
+  <table class="dt" style="margin-top:6px">
+    <tr><th>Score</th><th>Band</th><th>Required action</th></tr>
+    <tr><td>≥ 80</td><td><span class="band grn">GREEN</span></td><td>Acceptable; maintain test cadence</td></tr>
+    <tr><td>55–79</td><td><span class="band amb">AMBER</span></td><td>Gaps present; remediation plan required within 30 days</td></tr>
+    <tr><td>&lt; 55</td><td><span class="band red">RED</span></td><td>Material gap; immediate escalation; urgent remediation; CISO notification recommended</td></tr>
+  </table>
+  <h3>24.2 Viny drafting rules (deterministic — code-verified)</h3>
+  <div class="rule-block"><div class="rule-hdr"><span class="rule-id">R-EXIT-1</span><span class="rule-title">Strategy type selection</span></div><div class="rule-body">If <code>existing_alternatives</code> list is non-empty → <code>strategy_type = "alternative_provider"</code>. If list is empty AND vendor is critical → <code>strategy_type = "multi_source"</code>. If non-critical and no alternatives → <code>strategy_type = "alternative_provider"</code> (market scan required and noted in steps).</div></div>
+  <div class="rule-block"><div class="rule-hdr"><span class="rule-id">R-EXIT-2</span><span class="rule-title">Exit window mandates (CMORG principles)</span></div><div class="rule-body">Critical vendors: planned exit window = <strong>6 months</strong>; stressed exit window = <strong>4–6 weeks</strong>. Non-critical vendors: planned window = minimum 3 months. These are floors; the plan may specify longer where data portability or service complexity warrants.</div></div>
+  <div class="rule-block"><div class="rule-hdr"><span class="rule-id">R-EXIT-3</span><span class="rule-title">Missing exit clause — mandatory NOTE (deterministic)</span></div><div class="rule-body">If <code>_contract_has_exit_clause()</code> returns False, Viny must include in the plan rationale: <em>"NOTE: no contractual exit/assistance clause is currently evidenced — confirm termination-for-convenience, transition-assistance and data-return obligations."</em> This note is generated deterministically, not by AI, and cannot be suppressed.</div></div>
+  <div class="rule-block"><div class="rule-hdr"><span class="rule-id">R-EXIT-4</span><span class="rule-title">Test cadence and next_test_due auto-computation</span></div><div class="rule-body">Critical vendors: test every 365 days. Standard: 730 days. When a test is logged, <code>next_test_due</code> is automatically computed as <code>last_tested + cadence_days</code> and written to the exit plan record. Late tests reduce the readiness score from 20 to 8 points.</div></div>
+  <div class="rule-block"><div class="rule-hdr"><span class="rule-id">R-EXIT-5</span><span class="rule-title">Six mandatory transition steps minimum</span></div><div class="rule-body">Viny's deterministic draft always generates exactly 6 transition steps: (1) Invoke exit governance; (2) Confirm/stand up the target arrangement; (3) Extract and validate data; (4) Parallel-run and verify; (5) Cutover and monitor; (6) Decommission and obtain certified destruction. Assessors may add, reorder, or replace steps but may not reduce below 3 without the stressed-playbook readiness points being forfeited.</div></div>
+</div>
+
+<div class="section" id="notifications">
+  <div class="section-hdr"><span class="sec-tag">SOP-25</span><h2>Notification management</h2></div>
+  <p>24 notifiable event types catalogued across 5 groups. All are <strong>OFF by default.</strong> The administrator enables each type individually and selects the audience (management / risk_team / all_users). The single unconditional exception is <code>incident.notable</code> (SOP-23).</p>
+  <div class="callout crit"><div class="ico">⚑</div><div class="ct"><strong>incident.notable is unconditional.</strong> It always fires on flagging regardless of toggle state. All other 23 types are strictly opt-in and produce no notification unless explicitly enabled by an administrator.</div></div>
+  <h4>Enabling notifications — administrator procedure</h4>
+  <ol>
+    <li>Navigate to Notifications page → scroll to "Notification settings" section.</li>
+    <li>For each event type: check the "On" checkbox; select audience from dropdown (management / risk_team / all_users).</li>
+    <li>Changes take effect immediately on the next event occurrence. No restart required.</li>
+    <li>Configuration persisted to <code>system_config</code> table, key <code>notification_settings</code>.</li>
+    <li>All configuration changes are audit-logged under event type <code>notifications.settings</code> with a list of all enabled types.</li>
+  </ol>
+  <table class="dt">
+    <tr><th>Group</th><th>Event type</th><th>Trigger</th><th>Recommended audience</th></tr>
+    <tr><td rowspan="4">Assessments</td><td><code>assessment.completed</code></td><td>ProAssess/BroAssess reaches a verdict</td><td>risk_team</td></tr>
+    <tr><td><code>assessment.residual_high</code></td><td>Any assessment lands HIGH residual</td><td>management</td></tr>
+    <tr><td><code>decision.pending</code></td><td>Engagement decision awaiting approver</td><td>risk_team</td></tr>
+    <tr><td><code>ddq.returned</code></td><td>Vendor submits DDQ responses</td><td>risk_team</td></tr>
+    <tr><td rowspan="6">Monitoring</td><td><code>monitoring.alert</code></td><td>Monitoring sweep raises ALERT or CRITICAL</td><td>risk_team</td></tr>
+    <tr><td><code>monitoring.sweep_failed</code></td><td>Scheduled monitoring run errors</td><td>risk_team</td></tr>
+    <tr><td><code>sanctions.hit</code></td><td>Screening returns Hit or Review</td><td>management</td></tr>
+    <tr><td><code>watchlist.added</code></td><td>Vendor added to DORA/CTP watchlist</td><td>management</td></tr>
+    <tr><td><code>fdd.distress</code></td><td>Vera flags RED financial health</td><td>management</td></tr>
+    <tr><td><code>reputation.adverse</code></td><td>Reputation scan finds adverse coverage</td><td>risk_team</td></tr>
+    <tr><td rowspan="6">Lifecycle</td><td><code>contract.expiry</code></td><td>Contract enters renewal/expiry window</td><td>risk_team</td></tr>
+    <tr><td><code>cert.expiry</code></td><td>ISO/SOC certificate nears expiry</td><td>risk_team</td></tr>
+    <tr><td><code>finding.overdue</code></td><td>Remediation finding passes due date</td><td>risk_team</td></tr>
+    <tr><td><code>escrow.event</code></td><td>Software-escrow release condition triggers</td><td>management</td></tr>
+    <tr><td><code>exit.trigger</code></td><td>Live exit trigger opens on vendor</td><td>management</td></tr>
+    <tr><td><code>vendor.created</code></td><td>New vendor enters the register</td><td>risk_team</td></tr>
+    <tr><td rowspan="3">Incidents</td><td><code>incident.logged</code></td><td>New incident recorded</td><td>risk_team</td></tr>
+    <tr><td><code>incident.notable</code> ⚑</td><td><strong>UNCONDITIONAL</strong> — notable event flagged</td><td>management (forced)</td></tr>
+    <tr><td><code>incident.sla_breach</code></td><td>SLA clock exceeds severity threshold</td><td>risk_team</td></tr>
+    <tr><td rowspan="5">Platform</td><td><code>ai.budget_exceeded</code></td><td>AI daily call cap blocks further calls</td><td>risk_team</td></tr>
+    <tr><td><code>security.lockout</code></td><td>Account locked after repeated failures</td><td>risk_team</td></tr>
+    <tr><td><code>import.completed</code></td><td>CSV vendor import commits</td><td>risk_team</td></tr>
+    <tr><td><code>webhook.failure</code></td><td>Outbound webhook fails</td><td>risk_team</td></tr>
+    <tr><td><code>schedule.changed</code></td><td>Admin alters a scheduled sweep</td><td>risk_team</td></tr>
+  </table>
+</div>
+
+<div class="section" id="schedules">
+  <div class="section-hdr"><span class="sec-tag">SOP-26</span><h2>Schedules</h2></div>
+  <table class="dt">
+    <tr><th>Sweep ID</th><th>What it checks</th><th>Default cadence</th><th>Current engine</th><th>Configure via</th></tr>
+    <tr><td><code>monitoring_sweep</code></td><td>Full portfolio: signals, thresholds, stage clocks</td><td>24 h</td><td>In-process scheduler (<code>BRO_SCHEDULER_ENABLED=1</code>) or Render Cron</td><td>Schedules page; env <code>BRO_MONITORING_INTERVAL_HOURS</code></td></tr>
+    <tr><td><code>sanctions_screen</code></td><td>Re-screens vendors and persons</td><td>24 h</td><td>On-demand from Monitoring page today</td><td>Schedules page</td></tr>
+    <tr><td><code>fdd_refresh</code></td><td>Refreshes financial health signals (Vera)</td><td>168 h (weekly)</td><td>On-demand from FDD page today</td><td>Schedules page</td></tr>
+    <tr><td><code>cert_expiry_scan</code></td><td>ISO/SOC certificates entering expiry window</td><td>168 h</td><td>On-demand from Certifications page today</td><td>Schedules page</td></tr>
+    <tr><td><code>exit_trigger_scan</code></td><td>Exit-trigger conditions on critical vendors</td><td>168 h</td><td>On-demand from Exit Planning page today</td><td>Schedules page</td></tr>
+    <tr><td><code>contract_expiry_scan</code></td><td>Contracts entering notice/renewal windows</td><td>168 h</td><td>On-demand from Contracts page today</td><td>Schedules page</td></tr>
+  </table>
+  <div class="rule-block"><div class="rule-hdr"><span class="rule-id">R-SCH-1</span><span class="rule-title">Minimum cadence floor — 1 hour</span></div><div class="rule-body">The system enforces a minimum cadence of 1 hour for any sweep. Values below 1 are rejected with an error. This is enforced server-side: <code>cadence_hours = max(1, int(body["cadence_hours"]))</code>.</div></div>
+  <div class="rule-block"><div class="rule-hdr"><span class="rule-id">R-SCH-2</span><span class="rule-title">All schedule changes are audited and notified</span></div><div class="rule-body">Every cadence or enable/disable change is audit-logged under <code>schedules.update</code> (actor, sweep ID, new values, timestamp). If <code>schedule.changed</code> notification is enabled, a platform notification is also emitted.</div></div>
+</div>
+
+<div class="section" id="ai-gov">
+  <div class="section-hdr"><span class="sec-tag">SOP-27</span><h2>AI governance</h2></div>
+  <h3>27.1 AI call pipeline — enforced sequence</h3>
+  <table class="dt">
+    <tr><th>Step</th><th>Component</th><th>Enforced rule</th></tr>
+    <tr><td>1</td><td>Budget check</td><td>If daily budget set, call count checked against cap <em>before</em> the model call. Exceeded: call blocked, <code>last_error</code> set, deterministic fallback runs, ledger row written (success=False).</td></tr>
+    <tr><td>2</td><td>SDK check</td><td>If the selected provider's SDK is not installed: call blocked with honest error "SDK not installed". Deterministic fallback runs.</td></tr>
+    <tr><td>3</td><td>Provider resolution</td><td>Preference order: <code>BRO_LLM_PROVIDER</code> env → first provider with key present. Order: Claude → OpenAI → Grok → Manus → NVIDIA → custom providers.</td></tr>
+    <tr><td>4</td><td>System prompt composition</td><td>Always: UNTRUSTED_PREAMBLE + methodology directive + domain prompt from registry. No call-site may bypass this. Prompt source is the editable registry, not hardcoded strings.</td></tr>
+    <tr><td>5</td><td>Document injection defence</td><td>All third-party text wrapped in <code>&lt;untrusted_document&gt;</code> tags with security preamble (enforced in <code>ai_json.py:wrap_untrusted()</code>). Cannot be bypassed.</td></tr>
+    <tr><td>6</td><td>Output validation</td><td><code>parse_json_strict()</code>: strip fences → extract JSON → validate required keys. Failure: one self-repair retry (model corrects its own output). Second failure: deterministic fallback runs, error logged.</td></tr>
+    <tr><td>7</td><td>Ledger record</td><td>Metadata-only record on every call (success or failure): provider, model, domain, duration_ms, prompt_chars, response_chars, success, redacted error. Never stores prompt text or response content. PII regex-redacted from errors.</td></tr>
+  </table>
+  <div class="rule-block"><div class="rule-hdr"><span class="rule-id">R-AI-1</span><span class="rule-title">Prompts are governed artefacts</span></div><div class="rule-body">The 31-prompt registry is the platform's AI governance artefact. All changes require Administrator access and are audit-logged. The <code>prompt_evals.py</code> golden-set harness must pass before any prompt change ships. Overrides are DB-stored and take effect on the next call — no restart needed.</div></div>
+  <div class="rule-block"><div class="rule-hdr"><span class="rule-id">R-AI-2</span><span class="rule-title">AI output is advisory only</span></div><div class="rule-body">No AI-generated decision, finding, risk entry, or exit plan takes effect without assessor review and sign-off. AI outputs are labelled in the UI ("AI · web-enriched" badge or "deterministic draft" badge). The assessor's documented judgement is the system of record.</div></div>
+  <h3>27.2 Dump to Draft — form auto-fill governance</h3>
+  <p>The Dump to Draft function is available on New Vendor, New Engagement, and Exit Plan forms. It accepts uploaded documents and proposes field values derived from the document content. Rules:</p>
+  <ul>
+    <li>The system only populates a field when the document clearly supports a value. It never guesses or fabricates.</li>
+    <li>Where options are listed (tier, strategy type), the proposed value must be one of the permitted options.</li>
+    <li>Pre-filled fields are highlighted in amber. The user must review all proposed values before saving.</li>
+    <li>The function is not available on ProAssess or BroAssess forms (those use the full assessment methodology).</li>
+    <li>Offline path (no live model): deterministic label-matching extraction from document text.</li>
+    <li>All Dump to Draft actions are audited under <code>ai.dump_to_draft</code> (fields attempted, fields filled, engine used).</li>
+  </ul>
+</div>
+
+<div class="section" id="access">
+  <div class="section-hdr"><span class="sec-tag">SOP-28</span><h2>Access control &amp; authentication</h2></div>
+  <table class="dt">
+    <tr><th>Control</th><th>Rule</th><th>Enforcement</th></tr>
+    <tr><td>Login rate limiting</td><td>30 requests per 60 seconds per client IP. Exceeded: HTTP 429.</td><td><code>security.py:check_rate()</code> — before credential check</td></tr>
+    <tr><td>Account lockout</td><td>6 consecutive failed logins → account locked. Duration: 60s × 2ⁿ (n = failures above threshold); capped at 900 seconds (15 minutes maximum).</td><td><code>security.py:record_login_failure()</code></td></tr>
+    <tr><td>Production trust header</td><td>In <code>BRO_ENV=production</code>, the dev <code>BRO_TRUST_HEADER</code> escape hatch is unconditionally disabled. Attempts return HTTP 401.</td><td><code>security.py:is_production()</code> checked before trust-header evaluation</td></tr>
+    <tr><td>Production boot requirements</td><td><code>BRO_ENV=production</code> requires <code>BRO_SECRET_KEY</code> (any long random string) and <code>BRO_ADMIN_PASSWORD</code> at boot. Application refuses to start without them.</td><td>Enforced in <code>create_app()</code> startup block</td></tr>
+    <tr><td>AI key encryption</td><td>AI provider keys encrypted (Fernet; AES-256-CBC via sha256 of <code>BRO_SECRET_KEY</code>) when key set. Without key: stored with <code>plain:</code> prefix; amber warning shown in Admin UI.</td><td><code>security.py:encrypt_value() / decrypt_value()</code></td></tr>
+    <tr><td>Upload validation</td><td>Extension allowlist + magic-byte check on every upload. Mismatch: HTTP 415. Size &gt;25 MB: HTTP 413.</td><td><code>security.py:upload_check()</code> — before any storage write</td></tr>
+    <tr><td>Security response headers</td><td>X-Frame-Options: DENY; X-Content-Type-Options: nosniff; Referrer-Policy: strict-origin-when-cross-origin; CSP: default-src 'self' (plus allowed CDNs for fonts/scripts); HSTS in production.</td><td>FastAPI HTTP middleware on every response</td></tr>
+    <tr><td>Role permission check</td><td>Every API endpoint verifies calling user's role has the required permission before any data access. Permission mismatch: HTTP 403.</td><td>FastAPI <code>Depends(require("permission.key"))</code></td></tr>
+  </table>
+  <div class="callout info"><div class="ico">ℹ️</div><div class="ct"><strong>Health probes</strong><code>GET /healthz</code> returns platform version and status (no auth required — used by Render health checks). <code>GET /readyz</code> executes a lightweight DB query to confirm the database is accessible.</div></div>
+</div>
+
+<div class="section" id="audit">
+  <div class="section-hdr"><span class="sec-tag">SOP-29</span><h2>Audit trail &amp; data governance</h2></div>
+  <div class="rule-block"><div class="rule-hdr"><span class="rule-id">R-AUD-1</span><span class="rule-title">Audit log is immutable and comprehensive</span></div><div class="rule-body">Every state-changing action is written to the audit log: actor username, action type, UTC timestamp, and a JSON payload of changed values. The audit log cannot be edited or deleted through any platform interface. Key audit event types covered: all assessment actions, finding and remediation lifecycle, incident actions (including notable flag), all contract events, vendor management including imports, AI key and prompt changes, schedule changes, notification settings changes, authentication events (login, lockout, key saves, provider changes).</div></div>
+  <div class="rule-block"><div class="rule-hdr"><span class="rule-id">R-AUD-2</span><span class="rule-title">AI call ledger is metadata-only, PII-redacted</span></div><div class="rule-body">The AI call ledger records: provider, model, domain, duration_ms, prompt_chars, response_chars, success, error (redacted). It never stores prompt text or model response content. PII (email addresses, payment card numbers, NINOs, phone numbers) is regex-redacted from error strings before persistence. The ledger is a governance and cost-management tool, not a content log.</div></div>
+  <div class="rule-block"><div class="rule-hdr"><span class="rule-id">R-AUD-3</span><span class="rule-title">Assessment records are immutable point-in-time snapshots</span></div><div class="rule-body">Every ProAssess registration mints a new, immutable AssessmentRecord (<code>ASM-xxxxxx</code>). Re-running an assessment creates a new record alongside the prior one — it never overwrites it. The full assessment history for any engagement at any point in time is permanently preserved.</div></div>
+  <div class="rule-block"><div class="rule-hdr"><span class="rule-id">R-AUD-4</span><span class="rule-title">Data persistence on Render</span></div><div class="rule-body">On Render without a persistent disk, the SQLite database resets on every redeploy. A persistent disk must be attached, or the database migrated to Postgres (set env <code>DATABASE_URL</code>), before live operation with real data. The Postgres switch requires only the environment variable — no code changes.</div></div>
+  <div class="callout tip"><div class="ico">✓</div><div class="ct"><strong>Regulatory evidentiary record</strong>The audit log, immutable assessment snapshots, AI ledger, document store with full provenance, and finding lifecycle history together constitute the documented third-party risk management record required by DORA Article 28, FCA SYSC 8, and PRA SS2/21. The system is designed to answer the audit question: "what did you know about this vendor, and when?" at any point in time.</div></div>
+</div>
+
+<div class="section" id="appendix">
+  <div class="section-hdr"><span class="sec-tag">APPENDIX</span><h2>Complete inter-process auto-connection catalogue</h2></div>
+  <p>Every automated chain in the platform — verified against v4.2.0 source code. An auditor may trace any entry below to the exact file and line number cited.</p>
+  <div class="ipc">
+    <div class="ipc-hdr">⚙ All automated triggers, source → target (v4.2.0)</div>
+    <table>
+      <tr><th>Trigger event</th><th>Source (file:line)</th><th>Auto-creates / auto-updates</th><th>Condition</th></tr>
+      <tr><td>ProAssess registration</td><td class="src">master_service.py:1652</td><td class="dst">AssessmentRecord · EngagementRecord.bands · stored_documents (JSON report ART-xxxxxx) · FindingRecords (one per risk + one per gap) · vendor_master_ext.fdd_band · vendor_monitor_signals · vendor_risk_profiles · fin_monitor_records (auto-empanelment) · audit_log</td><td>Always on assessor Register action</td></tr>
+      <tr><td>Any finding created or deleted</td><td class="src">registry_service.py:173/191</td><td class="dst">EngagementRecord.open_actions (recomputed as count of non-Closed findings)</td><td>Always</td></tr>
+      <tr><td>Remediation plan created</td><td class="src">registry_service.py:177</td><td class="dst">FindingRecord.status → "In Remediation" · FindingRecord.remediation_id linked to new REM-xxxxxx</td><td>Always on create_remediation()</td></tr>
+      <tr><td>Finding closed</td><td class="src">bro_app.py:3341</td><td class="dst">FindingRecord.closed_date set · open_actions recomputed</td><td>Status == "Closed" and no prior closed_date</td></tr>
+      <tr><td>Document uploaded (any path)</td><td class="src">documents.py:69</td><td class="dst">stored_documents · artefact_records (ART-xxxxxx) · prior artefact.is_current=false if name matches</td><td>Always on successful upload</td></tr>
+      <tr><td>Certificate received (supersedes prior)</td><td class="src">registry_service.py</td><td class="dst">Prior artefact.is_current=false · open expired_certificate IssueRecords auto-closed (closed_reason="renewal received")</td><td>Name match against prior artefacts for same vendor</td></tr>
+      <tr><td>Certificate expired &gt; 30 days</td><td class="src">registry_service.py:265</td><td class="dst">IssueRecord created (kind=expired_certificate, status=Open)</td><td>Once per artefact; deduplication check prevents repeat creation</td></tr>
+      <tr><td>Email certificate received</td><td class="src">email_intake.py:80</td><td class="dst">ArtefactRecord (received_via=email) · prior artefact superseded · expired_certificate IssueRecords auto-closed</td><td>Sender matched to vendor by email or domain</td></tr>
+      <tr><td>Sanctions screening: Clear</td><td class="src">registry_service.py:410</td><td class="dst">All open sanctions IssueRecords → Closed (closed_reason="re-screened clear")</td><td>Any open sanctions_hit / sanctions_review issue exists</td></tr>
+      <tr><td>Sanctions screening: Hit</td><td class="src">registry_service.py:410</td><td class="dst">IssueRecord (kind=sanctions_hit) · vendor.is_critical escalated to True</td><td>No existing open hit issue</td></tr>
+      <tr><td>Engagement designated critical</td><td class="src">master_service.py:782/819/855</td><td class="dst">All linked ContractRecords.is_critical=true · VendorRecord.is_critical=true · exit plan requirements tightened · monitoring cadence elevated</td><td>Always on critical designation</td></tr>
+      <tr><td>FDD result: RED band</td><td class="src">master_service.py:240</td><td class="dst">vendor_master_ext.financial_health_band · vendor_monitor_signals (type="financial_health") · vendor_risk_profiles · fdd.distress notification (if enabled)</td><td>Always; notification conditional on setting</td></tr>
+      <tr><td>Incident flagged notable (⚑)</td><td class="src">bro_app.py:2660</td><td class="dst">notif_log (force=True, audience=management) · notable_incidents config entry · audit_log</td><td>Unconditional — bypasses all notification settings</td></tr>
+      <tr><td>Incident → risk register</td><td class="src">bro_app.py:4295</td><td class="dst">FindingRecord (source=Incident, FND-xxxxxx) · IncidentRecord.risk_entry_needed=True · IncidentRecord.risk_entry_ref=FND-xxxxxx</td><td>On assessor "Draft risk entry" action</td></tr>
+      <tr><td>CSV vendor import (commit)</td><td class="src">bro_app.py:3055</td><td class="dst">VendorRecords (per valid row) · import.completed notification · vendor.created notification per vendor (both if enabled)</td><td>mode=commit and valid rows present</td></tr>
+      <tr><td>Monitoring sweep run</td><td class="src">monitoring.py:103</td><td class="dst">MonitoringRun record · monitoring signals · watchlist entries · sanctions issues · certificate issues · finding.overdue notifications · cyber_certs cache · risk profiles</td><td>Every sweep; each sub-action has its own condition</td></tr>
+      <tr><td>Last active engagement closed for vendor</td><td class="src">registry_service.py:320</td><td class="dst">All open IssueRecords for vendor → Closed (closed_reason="engagement closed")</td><td>No remaining active engagements for that vendor</td></tr>
+      <tr><td>Schedule cadence/enable changed</td><td class="src">bro_app.py:2633</td><td class="dst">system_config (schedules key) · schedule.changed notification (if enabled) · audit_log</td><td>Always on POST /api/v1/schedules/{sid}</td></tr>
+      <tr><td>AI daily budget exceeded</td><td class="src">llm_config.py:_raw_complete</td><td class="dst">last_error set · call blocked · ledger row (success=False) · ai.budget_exceeded notification (if enabled)</td><td>budget_check() returns False</td></tr>
+      <tr><td>AI repair retry triggered</td><td class="src">ai_json.py:parse_json_strict</td><td class="dst">Second API call issued to model with repair instruction · second ledger row written · if still fails: deterministic fallback runs</td><td>First output fails JSON validation with required keys</td></tr>
+      <tr><td>Vendor criticality score computed</td><td class="src">master_service.py:729</td><td class="dst">EngagementCriticalityInput record written · weighted score and rationale logged · if ≥ 3.5: full cascade (contracts, vendor flag, exit, monitoring)</td><td>On score_engagement_criticality() call</td></tr>
+    </table>
+  </div>
+</div>
+
+</div><!-- /content -->
+</main>
+</div><!-- /layout -->
+<script>
+const secs = document.querySelectorAll('.section[id]');
+const links = document.querySelectorAll('.sidebar nav a[href^="#"]');
+if (secs.length && 'IntersectionObserver' in window) {
+  const io = new IntersectionObserver(entries => {
+    entries.forEach(e => {
+      if (e.isIntersecting) {
+        links.forEach(l => l.classList.remove('active'));
+        const a = document.querySelector('.sidebar nav a[href="#' + e.target.id + '"]');
+        if (a) a.classList.add('active');
+      }
+    });
+  }, { rootMargin: '-15% 0px -75% 0px' });
+  secs.forEach(s => io.observe(s));
+}
+</script>
+
+<div class="section" id="adminchange">
+  <div class="section-hdr"><span class="sec-tag">SOP-30</span><h2>Content &amp; layout administration (Admin Change)</h2></div>
+  <p>Administrators can retitle, reword and restructure the application without code changes. All edits apply live for every user and are written to the audit trail.</p>
+  <table>
+    <tr><th>Step</th><th>Action</th><th>System behaviour</th></tr>
+    <tr><td>1</td><td>Open <b>Admin Change</b> (admin-only nav item; requires the <code>admin.content</code> permission)</td><td>Content tab lists 1,188 catalogued strings across 17 groups with search</td></tr>
+    <tr><td>2</td><td>Edit any title, heading, subtitle, instruction, button, column, label, option, badge, hint or placeholder; <b>Save</b></td><td>Override stored in <code>content_override</code>; applied live everywhere the exact default string renders, including the login screen; audit event <code>v2.content_set</code></td></tr>
+    <tr><td>3</td><td>Optional: toggle <b>Preview</b> before saving</td><td>Buffered edits render live across the app client-side only; <b>Save all previewed</b> persists, <b>Exit preview</b> reverts</td></tr>
+    <tr><td>4</td><td>Use <b>+ Custom string</b> for any exact text not in the catalogue</td><td>Stored as <code>custom::&lt;source&gt;</code>; same live application</td></tr>
+    <tr><td>5</td><td>Switch to the <b>Layout</b> tab to show/hide or reorder navigation items and groups</td><td>Stored in <code>layout_setting</code>; nav restructured live for everyone; role-gated items (e.g. Methodology, Configuration) are excluded and remain governed by role</td></tr>
+    <tr><td>6</td><td><b>Reset</b> a single string, <b>Reset all</b>, or <b>Reset layout</b> to return to built-in defaults</td><td>Override rows deleted; defaults restored immediately</td></tr>
+  </table>
+  <p class="note">Governance: editing rights are carried by the <code>admin.content</code> permission only; every change is attributable in the hash-chained audit trail. Export/import endpoints support promoting an approved wording set between environments.</p>
+</div>
+
+<div class="section" id="brainmap">
+  <div class="section-hdr"><span class="sec-tag">SOP-31</span><h2>Entity graph &mdash; concentration investigation (brain map)</h2></div>
+  <p>The Entity Graph renders the live estate as an interactive brain map: vendors, shared fourth parties, common-ownership clusters and business units, generated from the database on each visit.</p>
+  <table>
+    <tr><th>Step</th><th>Action</th><th>System behaviour</th></tr>
+    <tr><td>1</td><td>Open <b>Analyse &rarr; Entity Graph</b> (requires <code>vendor.view</code>)</td><td>Force-directed map loads from <code>GET /api/v2/graph/network</code>; red halos mark critical vendors and single points of failure</td></tr>
+    <tr><td>2</td><td>Orient: drag the background to orbit (3D) or pan (2D); scroll to zoom; toggle <b>3D orbit / 2D flat</b>; filter node types with the chips; search by name</td><td>Physics keeps the layout fluid; <code>prefers-reduced-motion</code> disables auto-orbit. Use <b>Collapse owners</b> to fold ownership clusters into super-nodes, and <b>&#9654; Replay build-up</b> / the time slider to watch concentration form over time (engagement-dated)</td></tr>
+    <tr><td>3</td><td>Click any node</td><td>Detail panel shows type, connections, criticality/SPOF flags and clickable neighbours for hop-by-hop traversal</td></tr>
+    <tr><td>4</td><td>Act from the panel: vendor &rarr; <b>Open Vendor 360</b>; fourth party or owner &rarr; <b>Contagion</b>; business unit &rarr; <b>BU exposure</b></td><td>Contagion modal quantifies exposed vendors, critical vendors, engagements and business units if that entity degrades</td></tr>
+    <tr><td>5</td><td>Record findings per SOP-19 (issues) or SOP-21 (incidents) where a SPOF or cluster requires treatment</td><td>Standard issue/incident chains apply</td></tr>
+  </table>
+</div>
+
+</body>
+</html>
